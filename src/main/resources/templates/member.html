@@ -19,7 +19,7 @@
         <td th:text="${post.post_id}"></td>
         <td><a th:href="@{|/member/${post.post_id}|}" th:text="${post.post_title}"></a></td>
         <td th:text="${post.post_writer}"></td>
-        <td th:text="*{#temporals.format(post.post_created_time, 'yyyy-MM-dd HH:mm:ss')}"></td>
+        <td th:text="*{#temporals.format(post.post_created_time, 'yyyy-MM-dd HH:mm')}"></td>
         <td th:text="${post.post_hits}"></td>
         <td th:text="${post.post_like_count}"></td>
     </tr>

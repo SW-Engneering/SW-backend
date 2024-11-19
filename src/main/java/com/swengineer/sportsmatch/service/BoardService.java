@@ -5,9 +5,11 @@ import com.swengineer.sportsmatch.entity.BoardEntity;
 import com.swengineer.sportsmatch.repository.BoardRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -35,5 +37,21 @@ public class BoardService {
                 .map(BoardDTO::toBoardDTO) // BoardEntity를 BoardDTO로 변환
                 .collect(Collectors.toList()); // 필터링된 결과를 리스트로 수집
         return boardDTOList;
+    }
+
+    @Transactional
+    public void updateHits(Long post_id) {
+        boardRepository.updateHits(post_id);
+    }
+
+    public BoardDTO findByPost_id(Long post_id) {
+        Optional<BoardEntity> optionalBoardEntity = boardRepository.findById(post_id);
+        if(optionalBoardEntity.isPresent()){
+            BoardEntity boardEntity = optionalBoardEntity.get();
+            BoardDTO boardDTO = BoardDTO.toBoardDTO(boardEntity);
+            return boardDTO;
+        }else{
+            return null;
+        }
     }
 }

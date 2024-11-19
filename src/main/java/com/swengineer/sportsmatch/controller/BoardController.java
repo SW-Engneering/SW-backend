@@ -21,12 +21,12 @@ public class BoardController {
         return "member";
     }
 
-    @GetMapping("/member/write")
+    @GetMapping("/memberwrite")
     public String member_writeForm(){
         return "member_write";
     }
 
-    @PostMapping("/member/write")
+    @PostMapping("/memberwrite")
     public String member_write(@ModelAttribute BoardDTO boardDTO) {
         boardDTO.setPost_type("member");
         boardService.save(boardDTO);
@@ -40,16 +40,31 @@ public class BoardController {
         return "team";
     }
 
-    @GetMapping("/team/write")
+    @GetMapping("/teamwrite")
     public String team_writeForm(){
         return "team_write";
     }
 
-    @PostMapping("/team/write")
+    @PostMapping("/teamwrite")
     public String team_write(@ModelAttribute BoardDTO boardDTO) {
         boardDTO.setPost_type("team");
         boardService.save(boardDTO);
         return "team";
     }
 
+    @GetMapping("/member/{post_id}")
+    public String member_findByPost_id(@PathVariable Long post_id, Model model){
+        boardService.updateHits(post_id);
+        BoardDTO boardDTO = boardService.findByPost_id(post_id);
+        model.addAttribute("post_detail", boardDTO);
+        return "detail";
+    }
+
+    @GetMapping("/team/{post_id}")
+    public String team_findByPost_id(@PathVariable Long post_id, Model model){
+        boardService.updateHits(post_id);
+        BoardDTO boardDTO = boardService.findByPost_id(post_id);
+        model.addAttribute("post_detail", boardDTO);
+        return "detail";
+    }
 }

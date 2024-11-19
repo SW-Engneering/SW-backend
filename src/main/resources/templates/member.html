@@ -5,6 +5,7 @@
     <title>Title</title>
 </head>
 <body>
+<button onclick="mainReq()">메인 화면</button>
 <button onclick="saveReq()">글 작성하기</button>
 <table>
     <tr>
@@ -19,7 +20,7 @@
         <td th:text="${post.post_id}"></td>
         <td><a th:href="@{|/member/${post.post_id}|}" th:text="${post.post_title}"></a></td>
         <td th:text="${post.post_writer}"></td>
-        <td th:text="*{#temporals.format(post.post_created_time, 'yyyy-MM-dd HH:mm:ss')}"></td>
+        <td th:text="*{#temporals.format(post.post_created_time, 'yyyy-MM-dd HH:mm')}"></td>
         <td th:text="${post.post_hits}"></td>
         <td th:text="${post.post_like_count}"></td>
     </tr>
@@ -27,8 +28,11 @@
 
 </body>
 <script>
+    const mainReq = () => {
+      location.href = "/";
+    }
     const saveReq = () => {
-      location.href = "/member/write";
+      location.href = "/memberwrite";
     }
 </script>
 </html>

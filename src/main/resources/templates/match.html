@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>팀 매칭 목록</title>
+</head>
+<body>
+<button onclick="mainReq()">메인 화면</button>
+<button onclick="createMatchReq()">매칭 생성하기</button>
+<table>
+    <tr>
+        <th>매칭 ID</th>
+        <th>홈 팀</th>
+        <th>원정 팀</th>
+        <th>날짜</th>
+        <th>장소</th>
+        <th>상태</th>
+    </tr>
+    <tr th:each="match : ${matchList}">
+        <td th:text="${match.matchId}"></td>
+        <td th:text="${match.homeTeamName}"></td>
+        <td th:text="${match.awayTeamName}"></td>
+        <td th:text="${#temporals.format(match.matchDate, 'yyyy-MM-dd')}"></td>
+        <td th:text="${match.location}"></td>
+        <td th:text="${match.status}"></td>
+    </tr>
+</table>
+</body>
+<script>
+    const mainReq = () => {
+        location.href = "/";
+    }
+    const createMatchReq = () => {
+        location.href = "/matches/new";
+    }
+</script>
+</html>

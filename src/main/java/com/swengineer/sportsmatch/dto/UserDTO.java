@@ -1,35 +1,12 @@
-package com.swengineer.sportsmatch.entity;
+package com.swengineer.sportsmatch.dto;
 
-import jakarta.persistence.*;
-
-import java.time.LocalDateTime;
-
-@Entity
-@Table(name = "User")
-public class User {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+public class UserDTO {
     private Integer userId;
-
     private Integer teamId;
-
-    @Column(nullable = false)
     private String passwd;
-
-    @Column(nullable = false)
     private String userName;
-
-    @Column(nullable = false)
     private String phoneNumber;
-
-    @Column(nullable = false)
     private String nickname;
-
-    private LocalDateTime registDate = LocalDateTime.now();
-
-    private Boolean banYn = false;
-
     private String location;
     private Integer age;
     private Character sex;
@@ -82,22 +59,6 @@ public class User {
 
     public void setNickname(String nickname) {
         this.nickname = nickname;
-    }
-
-    public LocalDateTime getRegistDate() {
-        return registDate;
-    }
-
-    public void setRegistDate(LocalDateTime registDate) {
-        this.registDate = registDate;
-    }
-
-    public Boolean getBanYn() {
-        return banYn;
-    }
-
-    public void setBanYn(Boolean banYn) {
-        this.banYn = banYn;
     }
 
     public String getLocation() {

@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>팀 매칭 상세 정보</title>
+</head>
+<body>
+<table>
+    <tr>
+        <th>매칭 ID</th>
+        <td th:text="${match_detail.matchId}"></td>
+    </tr>
+    <tr>
+        <th>홈 팀</th>
+        <td th:text="${match_detail.homeTeamName}"></td>
+    </tr>
+    <tr>
+        <th>원정 팀</th>
+        <td th:text="${match_detail.awayTeamName}"></td>
+    </tr>
+    <tr>
+        <th>날짜</th>
+        <td th:text="${#temporals.format(match_detail.matchDate, 'yyyy-MM-dd HH:mm')}"></td>
+    </tr>
+    <tr>
+        <th>장소</th>
+        <td th:text="${match_detail.location}"></td>
+    </tr>
+    <tr>
+        <th>상태</th>
+        <td th:text="${match_detail.status}"></td>
+    </tr>
+</table>
+<button onclick="listReq()">목록</button>
+<!-- 매칭 수락 및 거절 버튼 -->
+<button onclick="acceptReq()" th:if="${canAccept}">매칭 수락</button>
+<button onclick="rejectReq()" th:if="${canReject}">매칭 거절</button>
+</body>
+<script th:inline="javascript">
+    const listReq = () => {
+        location.href = "/matches";
+    }
+    const acceptReq = () => {
+        console.log("매칭 수락 요청");
+        const id = /*[[${match_detail.matchId}]]*/ '0';
+        location.href = "/matches/" + id + "/accept";
+    }
+    const rejectReq = () => {
+        console.log("매칭 거절 요청");
+        const id = /*[[${match_detail.matchId}]]*/ '0';
+        location.href = "/matches/" + id + "/reject";
+    }
+</script>
+</html>

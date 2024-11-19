@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>update</title>
+</head>
+<body>
+<form action="/teamupdate" method="post" name="team_updateForm">
+  <input type="hidden" name="post_id" th:value="${post_update.post_id}">
+  <input type="hidden" name="post_type" th:value="${post_update.post_type}" >
+  <input type="hidden" name="post_hits" th:value="${post_update.post_hits}">
+  <input type="hidden" name="post_comment_count" th:value="${post_update.post_comment_count}" >
+  <input type="hidden" name="post_dislike_count" th:value="${post_update.post_dislike_count}" >
+  <input type="hidden" name="post_report_count" th:value="${post_update.post_report_count}" >
+  writer: <input type="text" name="post_writer" th:value="${post_update.post_writer}" readonly> <br> <!--작성자는 수정 불가 -->
+  title: <input type="text" name="post_title" th:value="${post_update.post_title}"> <br>
+  contents: <textarea name="post_content" cols="30" rows="10" th:text="${post_update.post_content}"></textarea> <br>
+  <input type="button" value="글 수정" onclick="post_update()">
+</form>
+<script th:inline="javascript">
+  const post_update = () => {
+    document.team_updateForm.submit();
+  }
+</script>
+</body>

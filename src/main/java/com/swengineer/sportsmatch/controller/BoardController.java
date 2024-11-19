@@ -55,6 +55,11 @@ public class BoardController {
         return "member_detail";
     }
 
+    @GetMapping("/memberdelete/{post_id}")
+    public String member_delete(@PathVariable Long post_id){
+        boardService.delete(post_id);
+        return "redirect:/member";
+    }
 
 
 
@@ -97,5 +102,11 @@ public class BoardController {
         BoardDTO board = boardService.update(boardDTO);
         model.addAttribute("post_detail", board);
         return "team_detail";
+    }
+
+    @GetMapping("/teamdelete/{post_id}")
+    public String team_delete(@PathVariable Long post_id){
+        boardService.delete(post_id);
+        return "redirect:/team";
     }
 }

@@ -1,1 +1,5 @@
+<<<<<<< HEAD
 rootProject.name = 'sportsmatch'
+=======
+rootProject.name = 'sw_backend_team'
+>>>>>>> ab5f978 (Initial commit for Heroku)

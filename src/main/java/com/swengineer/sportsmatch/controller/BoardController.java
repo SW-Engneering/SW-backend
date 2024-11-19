@@ -33,6 +33,30 @@ public class BoardController {
         return "member";
     }
 
+    @GetMapping("/member/{post_id}")
+    public String member_findByPost_id(@PathVariable Long post_id, Model model){
+        boardService.updateHits(post_id);
+        BoardDTO boardDTO = boardService.findByPost_id(post_id);
+        model.addAttribute("post_detail", boardDTO);
+        return "detail";
+    }
+
+    @GetMapping("/memberupdate/{post_id}")
+    public String member_updateForm(@PathVariable Long post_id, Model model){
+        BoardDTO boardDTO = boardService.findByPost_id(post_id);
+        model.addAttribute("post_update", boardDTO);
+        return "update";
+    }
+
+    @PostMapping("/memberupdate")
+    public String member_update(@ModelAttribute BoardDTO boardDTO, Model model){
+        BoardDTO board = boardService.update(boardDTO);
+        model.addAttribute("post_detail", board);
+        return "detail";
+    }
+
+
+
     @GetMapping("/team")
     public String team_findAll(Model model){
         List<BoardDTO> boardDTOList = boardService.team_findAll();
@@ -52,13 +76,7 @@ public class BoardController {
         return "team";
     }
 
-    @GetMapping("/member/{post_id}")
-    public String member_findByPost_id(@PathVariable Long post_id, Model model){
-        boardService.updateHits(post_id);
-        BoardDTO boardDTO = boardService.findByPost_id(post_id);
-        model.addAttribute("post_detail", boardDTO);
-        return "detail";
-    }
+
 
     @GetMapping("/team/{post_id}")
     public String team_findByPost_id(@PathVariable Long post_id, Model model){
@@ -67,4 +85,6 @@ public class BoardController {
         model.addAttribute("post_detail", boardDTO);
         return "detail";
     }
+
+
 }

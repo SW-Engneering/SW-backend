@@ -52,7 +52,6 @@ public class BoardEntity extends BaseEntity {
         boardEntity.setPost_writer(boardDTO.getPost_writer());
         boardEntity.setPost_title(boardDTO.getPost_title());
         boardEntity.setPost_content(boardDTO.getPost_content());
-        //boardEntity.setPost_imagePath(boardEntity.getPost_imagePath());
         boardEntity.setPost_hits(0);
         boardEntity.setPost_like_count(0);
         boardEntity.setPost_dislike_count(0);
@@ -61,4 +60,18 @@ public class BoardEntity extends BaseEntity {
         return boardEntity;
     }
 
+    public static BoardEntity toUpdateEntity(BoardDTO boardDTO) {
+        BoardEntity boardEntity = new BoardEntity();
+        boardEntity.setPost_id(boardDTO.getPost_id());
+        boardEntity.setPost_type(boardDTO.getPost_type());
+        boardEntity.setPost_writer(boardDTO.getPost_writer());
+        boardEntity.setPost_title(boardDTO.getPost_title());
+        boardEntity.setPost_content(boardDTO.getPost_content());
+        boardEntity.setPost_hits(boardDTO.getPost_hits());
+        boardEntity.setPost_like_count(boardDTO.getPost_like_count());
+        boardEntity.setPost_dislike_count(boardDTO.getPost_dislike_count());
+        boardEntity.setPost_report_count(boardDTO.getPost_report_count());
+        boardEntity.setPost_comment_count(boardDTO.getPost_comment_count());
+        return boardEntity;
+    }
 }

@@ -5,6 +5,7 @@
     <title>Title</title>
 </head>
 <body>
+<button onclick="mainReq()">메인 화면</button>
 <button onclick="saveReq()">글 작성하기</button>
 <table>
     <tr>
@@ -27,8 +28,11 @@
 
 </body>
 <script>
+    const mainReq = () => {
+      location.href = "/";
+    }
     const saveReq = () => {
-      location.href = "/member/write";
+      location.href = "/memberwrite";
     }
 </script>
 </html>

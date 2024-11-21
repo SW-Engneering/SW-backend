@@ -4,15 +4,16 @@ server:
 #데이터베이스 연동 설정
 spring:
   application:
-    name: SportsMatch
+    name: sportsmatch
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:3306/SportsMatch?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
+    url: jdbc:mysql://localhost:3306/sportsmatch?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
         #jdbc:mysql://데이터베이스 주소:3306/데이터베이스 이름?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
     username: root #sql 아이디
     password: 1234 #sql 비밀번호
   thymeleaf:
     cache: false
+
 
   jpa:
     open-in-view: false

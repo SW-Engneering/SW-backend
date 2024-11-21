@@ -3,110 +3,89 @@ package com.swengineer.sportsmatch.controller;
 import com.swengineer.sportsmatch.dto.BoardDTO;
 import com.swengineer.sportsmatch.service.BoardService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-@Controller
+@RestController
 @RequiredArgsConstructor
 public class BoardController {
     private final BoardService boardService;
 
+    // 모든 회원 게시글 조회
     @GetMapping("/member")
-    public String member_findAll(Model model){
+    public ResponseEntity<List<BoardDTO>> getAllMemberPosts() {
         List<BoardDTO> boardDTOList = boardService.member_findAll();
-        model.addAttribute("member_post_List",boardDTOList);
-        return "member";
+        return ResponseEntity.ok(boardDTOList);
     }
 
-    @GetMapping("/memberwrite")
-    public String member_writeForm(){
-        return "member_write";
-    }
-
-    @PostMapping("/memberwrite")
-    public String member_write(@ModelAttribute BoardDTO boardDTO) {
+    // 회원 게시글 작성 폼(이제 UI가 아닌 POST 요청을 통해 처리합니다)
+    @PostMapping("/member")
+    public ResponseEntity<BoardDTO> createMemberPost(@RequestBody BoardDTO boardDTO) {
         boardDTO.setPost_type("member");
         boardService.save(boardDTO);
-        return "member";
+        return ResponseEntity.status(201).body(boardDTO); // 생성된 게시글 반환
     }
 
+    // 특정 회원 게시글 조회
     @GetMapping("/member/{post_id}")
-    public String member_findByPost_id(@PathVariable Long post_id, Model model){
+    public ResponseEntity<BoardDTO> getMemberPostById(@PathVariable Long post_id) {
         boardService.updateHits(post_id);
         BoardDTO boardDTO = boardService.findByPost_id(post_id);
-        model.addAttribute("post_detail", boardDTO);
-        return "member_detail";
+        return ResponseEntity.ok(boardDTO);
     }
 
-    @GetMapping("/memberupdate/{post_id}")
-    public String member_updateForm(@PathVariable Long post_id, Model model){
-        BoardDTO boardDTO = boardService.findByPost_id(post_id);
-        model.addAttribute("post_update", boardDTO);
-        return "member_update";
+    // 회원 게시글 수정
+    @PutMapping("/member/{post_id}")
+    public ResponseEntity<BoardDTO> updateMemberPost(@PathVariable Long post_id, @RequestBody BoardDTO boardDTO) {
+        boardDTO.setPost_id(post_id); // 기존 게시글 ID 설정
+        BoardDTO updatedBoard = boardService.update(boardDTO);
+        return ResponseEntity.ok(updatedBoard);
     }
 
-    @PostMapping("/memberupdate")
-    public String member_update(@ModelAttribute BoardDTO boardDTO, Model model){
-        BoardDTO board = boardService.update(boardDTO);
-        model.addAttribute("post_detail", board);
-        return "member_detail";
-    }
-
-    @GetMapping("/memberdelete/{post_id}")
-    public String member_delete(@PathVariable Long post_id){
+    // 회원 게시글 삭제
+    @DeleteMapping("/member/{post_id}")
+    public ResponseEntity<Void> deleteMemberPost(@PathVariable Long post_id) {
         boardService.delete(post_id);
-        return "redirect:/member";
+        return ResponseEntity.noContent().build(); // 성공적으로 삭제되었음을 나타냅니다.
     }
 
-
-
+    // 모든 팀 게시글 조회
     @GetMapping("/team")
-    public String team_findAll(Model model){
+    public ResponseEntity<List<BoardDTO>> getAllTeamPosts() {
         List<BoardDTO> boardDTOList = boardService.team_findAll();
-        model.addAttribute("team_post_List",boardDTOList);
-        return "team";
+        return ResponseEntity.ok(boardDTOList);
     }
 
-    @GetMapping("/teamwrite")
-    public String team_writeForm(){
-        return "team_write";
-    }
-
-    @PostMapping("/teamwrite")
-    public String team_write(@ModelAttribute BoardDTO boardDTO) {
+    // 팀 게시글 작성
+    @PostMapping("/team")
+    public ResponseEntity<BoardDTO> createTeamPost(@RequestBody BoardDTO boardDTO) {
         boardDTO.setPost_type("team");
         boardService.save(boardDTO);
-        return "team";
+        return ResponseEntity.status(201).body(boardDTO);
     }
 
+    // 특정 팀 게시글 조회
     @GetMapping("/team/{post_id}")
-    public String team_findByPost_id(@PathVariable Long post_id, Model model){
+    public ResponseEntity<BoardDTO> getTeamPostById(@PathVariable Long post_id) {
         boardService.updateHits(post_id);
         BoardDTO boardDTO = boardService.findByPost_id(post_id);
-        model.addAttribute("post_detail", boardDTO);
-        return "team_detail";
+        return ResponseEntity.ok(boardDTO);
     }
 
-    @GetMapping("/teamupdate/{post_id}")
-    public String team_updateForm(@PathVariable Long post_id, Model model){
-        BoardDTO boardDTO = boardService.findByPost_id(post_id);
-        model.addAttribute("post_update", boardDTO);
-        return "team_update";
+    // 팀 게시글 수정
+    @PutMapping("/team/{post_id}")
+    public ResponseEntity<BoardDTO> updateTeamPost(@PathVariable Long post_id, @RequestBody BoardDTO boardDTO) {
+        boardDTO.setPost_id(post_id); // 기존 게시글 ID 설정
+        BoardDTO updatedBoard = boardService.update(boardDTO);
+        return ResponseEntity.ok(updatedBoard);
     }
 
-    @PostMapping("/teamupdate")
-    public String team_update(@ModelAttribute BoardDTO boardDTO, Model model){
-        BoardDTO board = boardService.update(boardDTO);
-        model.addAttribute("post_detail", board);
-        return "team_detail";
-    }
-
-    @GetMapping("/teamdelete/{post_id}")
-    public String team_delete(@PathVariable Long post_id){
+    // 팀 게시글 삭제
+    @DeleteMapping("/team/{post_id}")
+    public ResponseEntity<Void> deleteTeamPost(@PathVariable Long post_id) {
         boardService.delete(post_id);
-        return "redirect:/team";
+        return ResponseEntity.noContent().build();
     }
 }

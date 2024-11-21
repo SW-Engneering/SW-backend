@@ -23,4 +23,8 @@ public class BaseEntity {
     @UpdateTimestamp // 수정 시간
     @Column(insertable = false) //생성될때 변동 x
     private LocalDateTime post_updated_time; // 수정일
+
+    @CreationTimestamp //생성 시간
+    @Column(updatable = false) //수정될때 변동 x
+    private LocalDateTime registDate; //회원가입일
 }

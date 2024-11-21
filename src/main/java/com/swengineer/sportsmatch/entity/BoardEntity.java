@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 @Entity
 @Getter
 @Setter
-@Table(name = "board_table_jpa")
+@Table(name = "post")
 public class BoardEntity extends BaseEntity {
     @Id //pk 컬럼 지정
     @GeneratedValue(strategy = GenerationType.IDENTITY)

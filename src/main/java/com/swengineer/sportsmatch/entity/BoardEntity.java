@@ -6,6 +6,8 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Getter
@@ -14,9 +16,13 @@ import java.time.LocalDateTime;
 public class BoardEntity extends BaseEntity {
     @Id //pk 컬럼 지정
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long post_id; // 게시글 id
+    private int post_id; // 게시글 id
 
-    @Column(nullable = false)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id")
+    private UserEntity userEntity; // 사용자 ID
+
+    @Column(nullable = false, name = "post_type")
     private String post_type;  // 게시판 타입 (팀 게시판: "team", 팀원 게시판: "member")
 
     @Column(nullable = false, length = 50)
@@ -46,9 +52,15 @@ public class BoardEntity extends BaseEntity {
     @Column(nullable = false)
     private int post_comment_count = 0; // 댓글 개수 (기본값 0)
 
-    public static  BoardEntity toSaveEntity(BoardDTO boardDTO){
+    @OneToMany(mappedBy = "boardEntity", cascade = CascadeType.REMOVE, orphanRemoval = true, fetch = FetchType.LAZY)
+    private List<CommentEntity> board_commentEntityList = new ArrayList<>();
+
+
+
+
+    public static  BoardEntity toSaveEntity(BoardDTO boardDTO, UserEntity userEntity, String postType){
         BoardEntity boardEntity = new BoardEntity();
-        boardEntity.setPost_type(boardDTO.getPost_type());
+        boardEntity.setPost_type(postType);
         boardEntity.setPost_writer(boardDTO.getPost_writer());
         boardEntity.setPost_title(boardDTO.getPost_title());
         boardEntity.setPost_content(boardDTO.getPost_content());
@@ -57,21 +69,7 @@ public class BoardEntity extends BaseEntity {
         boardEntity.setPost_dislike_count(0);
         boardEntity.setPost_report_count(0);
         boardEntity.setPost_comment_count(0);
-        return boardEntity;
-    }
-
-    public static BoardEntity toUpdateEntity(BoardDTO boardDTO) {
-        BoardEntity boardEntity = new BoardEntity();
-        boardEntity.setPost_id(boardDTO.getPost_id());
-        boardEntity.setPost_type(boardDTO.getPost_type());
-        boardEntity.setPost_writer(boardDTO.getPost_writer());
-        boardEntity.setPost_title(boardDTO.getPost_title());
-        boardEntity.setPost_content(boardDTO.getPost_content());
-        boardEntity.setPost_hits(boardDTO.getPost_hits());
-        boardEntity.setPost_like_count(boardDTO.getPost_like_count());
-        boardEntity.setPost_dislike_count(boardDTO.getPost_dislike_count());
-        boardEntity.setPost_report_count(boardDTO.getPost_report_count());
-        boardEntity.setPost_comment_count(boardDTO.getPost_comment_count());
+        boardEntity.setUserEntity(userEntity);
         return boardEntity;
     }
 }

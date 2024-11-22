@@ -6,6 +6,8 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Getter
@@ -15,10 +17,10 @@ public class UserEntity extends BaseEntity {
 
     @Id // Primary Key 지정
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long user_id; // 사용자 ID
+    private int user_id; // 사용자 ID
 
     @Column(nullable = false)
-    private Long team_id; // 팀 ID
+    private int team_id; // 팀 ID
 
     @Column(nullable = false, length = 50)
     private String passwd; // 비밀번호
@@ -52,6 +54,12 @@ public class UserEntity extends BaseEntity {
 
     //@Column(nullable = true, length = 255)
     //private String profile_image; // 프로필 이미지 경로
+
+    @OneToMany(mappedBy = "userEntity", cascade = CascadeType.REMOVE, orphanRemoval = true, fetch = FetchType.LAZY)
+    private List<CommentEntity> user_postEntityList = new ArrayList<>();
+
+    @OneToMany(mappedBy = "userEntity", cascade = CascadeType.REMOVE, orphanRemoval = true, fetch = FetchType.LAZY)
+    private List<CommentEntity> user_commentEntityList = new ArrayList<>();
 
     // UserDTO로 변환하는 메서드
     public static UserEntity toSaveEntity(UserDTO userDTO) {

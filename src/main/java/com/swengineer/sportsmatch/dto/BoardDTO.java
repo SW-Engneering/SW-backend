@@ -10,7 +10,8 @@ import java.time.LocalDateTime;
 @NoArgsConstructor //기본생성자
 @AllArgsConstructor //모든 필드를 매개변수로하는 생성자
 public class BoardDTO {
-    private Long post_id;
+    private int post_id;
+    private int user_id;
     private String post_type;
     private String post_writer;
     private String post_title;
@@ -24,9 +25,10 @@ public class BoardDTO {
     private int post_report_count;
     private int post_comment_count;
 
-    public static BoardDTO toBoardDTO(BoardEntity boardEntity) {
+    public static BoardDTO toBoardDTO(BoardEntity boardEntity, int user_id) {
         BoardDTO boardDTO = new BoardDTO();
         boardDTO.setPost_id(boardEntity.getPost_id());
+        boardDTO.setUser_id(user_id);
         boardDTO.setPost_type(boardEntity.getPost_type());
         boardDTO.setPost_writer(boardEntity.getPost_writer());
         boardDTO.setPost_title(boardEntity.getPost_title());

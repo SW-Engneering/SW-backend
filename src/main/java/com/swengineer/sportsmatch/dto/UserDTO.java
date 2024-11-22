@@ -11,8 +11,8 @@ import java.time.LocalDateTime;
 @NoArgsConstructor // 기본생성자
 @AllArgsConstructor // 모든 필드를 매개변수로하는 생성자
 public class UserDTO {
-    private Long user_id;
-    private Long team_id;
+    private int user_id;
+    private int team_id;
     private String passwd;
     private String user_name;
     private String phone_number;

@@ -2,66 +2,65 @@ package com.swengineer.sportsmatch.service;
 
 import com.swengineer.sportsmatch.dto.BoardDTO;
 import com.swengineer.sportsmatch.entity.BoardEntity;
+import com.swengineer.sportsmatch.entity.UserEntity;
 import com.swengineer.sportsmatch.repository.BoardRepository;
-import lombok.RequiredArgsConstructor;
+import com.swengineer.sportsmatch.repository.UserRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
-@RequiredArgsConstructor
 public class BoardService {
-    private  final BoardRepository boardRepository;
-    public void save(BoardDTO boardDTO) {
-        BoardEntity boardEntity = BoardEntity.toSaveEntity(boardDTO);
-        boardRepository.save(boardEntity);
-    }
 
-    public List<BoardDTO> member_findAll() {
-        List<BoardEntity> boardEntityList = boardRepository.findAll();
-        List<BoardDTO> boardDTOList = boardEntityList.stream()
-                .filter(boardEntity -> "member".equals(boardEntity.getPost_type())) // post_type이 "member"인 게시글만 필터링
-                .map(BoardDTO::toBoardDTO) // BoardEntity를 BoardDTO로 변환
-                .collect(Collectors.toList()); // 필터링된 결과를 리스트로 수집
-        return boardDTOList;
-    }
+    @Autowired
+    private BoardRepository boardRepository;
 
-    public List<BoardDTO> team_findAll() {
-        List<BoardEntity> boardEntityList = boardRepository.findAll();
-        List<BoardDTO> boardDTOList = boardEntityList.stream()
-                .filter(boardEntity -> "team".equals(boardEntity.getPost_type())) // post_type이 "team"인 게시글만 필터링
-                .map(BoardDTO::toBoardDTO) // BoardEntity를 BoardDTO로 변환
-                .collect(Collectors.toList()); // 필터링된 결과를 리스트로 수집
-        return boardDTOList;
-    }
+    @Autowired
+    private UserRepository userRepository;
 
-    @Transactional
-    public void updateHits(Long post_id) {
-        boardRepository.updateHits(post_id);
-    }
-
-    public BoardDTO findByPost_id(Long post_id) {
-        Optional<BoardEntity> optionalBoardEntity = boardRepository.findById(post_id);
-        if(optionalBoardEntity.isPresent()){
-            BoardEntity boardEntity = optionalBoardEntity.get();
-            BoardDTO boardDTO = BoardDTO.toBoardDTO(boardEntity);
-            return boardDTO;
-        }else{
-            return null;
+    // 게시글 작성
+    public BoardDTO createBoardPost(BoardDTO boardDTO, int userId, String postType) {
+        Optional<UserEntity> user = userRepository.findById(userId);
+        if (user.isPresent()) {
+            BoardEntity boardEntity = BoardEntity.toSaveEntity(boardDTO, user.get(), postType);
+            boardRepository.save(boardEntity);
+            return BoardDTO.toBoardDTO(boardEntity, userId);
         }
+        return null;
     }
 
-    public BoardDTO update(BoardDTO boardDTO) {
-        BoardEntity boardEntity = BoardEntity.toUpdateEntity(boardDTO);
-        boardRepository.save(boardEntity);
-        return findByPost_id(boardDTO.getPost_id());
+    // 게시글 목록 조회
+    public List<BoardDTO> getBoardPosts(String postType) {
+        List<BoardEntity> boardEntities = boardRepository.findByPost_type(postType);
+        return boardEntities.stream()
+                .map(boardEntity -> BoardDTO.toBoardDTO(boardEntity, boardEntity.getUserEntity().getUser_id()))
+                .toList();
     }
 
-    public void delete(Long id) {
-        boardRepository.deleteById(id);
+    // 게시글 상세 조회
+    public BoardDTO getBoardPost(int postId) {
+        Optional<BoardEntity> boardEntity = boardRepository.findById(postId);
+        return boardEntity.map(entity -> BoardDTO.toBoardDTO(entity, entity.getUserEntity().getUser_id())).orElse(null);
+    }
+
+    // 게시글 수정
+    public BoardDTO updateBoardPost(int postId, BoardDTO boardDTO) {
+        Optional<BoardEntity> boardEntityOpt = boardRepository.findById(postId);
+        if (boardEntityOpt.isPresent()) {
+            BoardEntity boardEntity = boardEntityOpt.get();
+            boardEntity.setPost_title(boardDTO.getPost_title());
+            boardEntity.setPost_content(boardDTO.getPost_content());
+            // 기타 수정 가능한 필드들...
+            boardRepository.save(boardEntity);
+            return BoardDTO.toBoardDTO(boardEntity, boardEntity.getUserEntity().getUser_id());
+        }
+        return null;
+    }
+
+    // 게시글 삭제
+    public void deleteBoardPost(int postId) {
+        boardRepository.deleteById(postId);
     }
 }

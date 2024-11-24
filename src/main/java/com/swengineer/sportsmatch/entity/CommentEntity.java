@@ -57,9 +57,7 @@ public class CommentEntity {
         commentEntity.setComment_insert_time(LocalDateTime.now());
         commentEntity.setComment_delete_yn(false);
         commentEntity.setComment_secret_yn(commentDTO.isComment_secret_yn());
-        commentEntity.setComment_hidden_yn(commentDTO.isComment_hidden_yn());
+        commentEntity.setComment_hidden_yn(false);
         return commentEntity;
     }
-
-
 }

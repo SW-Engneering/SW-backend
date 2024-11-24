@@ -41,10 +41,18 @@ public class BoardService {
 
     // 게시글 상세 조회
     public BoardDTO getBoardPost(int postId) {
-        Optional<BoardEntity> boardEntity = boardRepository.findById(postId);
-        return boardEntity.map(entity -> BoardDTO.toBoardDTO(entity, entity.getUserEntity().getUser_id())).orElse(null);
-    }
+        Optional<BoardEntity> boardEntityOptional = boardRepository.findById(postId);
+        if (boardEntityOptional.isPresent()) {
+            BoardEntity boardEntity = boardEntityOptional.get();
 
+            // 조회수 증가
+            boardEntity.setPost_hits(boardEntity.getPost_hits() + 1);
+            boardRepository.save(boardEntity); // 변경된 조회수를 저장
+
+            return BoardDTO.toBoardDTO(boardEntity, boardEntity.getUserEntity().getUser_id());
+        }
+        return null; // 게시글이 없을 경우 null 반환
+    }
     // 게시글 수정
     public BoardDTO updateBoardPost(int postId, BoardDTO boardDTO) {
         Optional<BoardEntity> boardEntityOpt = boardRepository.findById(postId);
@@ -52,11 +60,10 @@ public class BoardService {
             BoardEntity boardEntity = boardEntityOpt.get();
             boardEntity.setPost_title(boardDTO.getPost_title());
             boardEntity.setPost_content(boardDTO.getPost_content());
-            // 기타 수정 가능한 필드들...
             boardRepository.save(boardEntity);
             return BoardDTO.toBoardDTO(boardEntity, boardEntity.getUserEntity().getUser_id());
         }
-        return null;
+        return null;// 게시글이 없을 경우 null 반환
     }
 
     // 게시글 삭제

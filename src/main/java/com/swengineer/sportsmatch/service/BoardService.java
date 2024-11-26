@@ -6,7 +6,9 @@ import com.swengineer.sportsmatch.entity.UserEntity;
 import com.swengineer.sportsmatch.repository.BoardRepository;
 import com.swengineer.sportsmatch.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.Optional;
@@ -27,8 +29,9 @@ public class BoardService {
             BoardEntity boardEntity = BoardEntity.toSaveEntity(boardDTO, user.get(), postType);
             boardRepository.save(boardEntity);
             return BoardDTO.toBoardDTO(boardEntity, userId);
+        } else {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User with id " + userId + " not found");
         }
-        return null;
     }
 
     // 게시글 목록 조회
@@ -44,15 +47,14 @@ public class BoardService {
         Optional<BoardEntity> boardEntityOptional = boardRepository.findById(postId);
         if (boardEntityOptional.isPresent()) {
             BoardEntity boardEntity = boardEntityOptional.get();
-
-            // 조회수 증가
             boardEntity.setPost_hits(boardEntity.getPost_hits() + 1);
-            boardRepository.save(boardEntity); // 변경된 조회수를 저장
-
+            boardRepository.save(boardEntity);
             return BoardDTO.toBoardDTO(boardEntity, boardEntity.getUserEntity().getUser_id());
+        } else {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Board post with id " + postId + " not found");
         }
-        return null; // 게시글이 없을 경우 null 반환
     }
+
     // 게시글 수정
     public BoardDTO updateBoardPost(int postId, BoardDTO boardDTO) {
         Optional<BoardEntity> boardEntityOpt = boardRepository.findById(postId);
@@ -62,12 +64,18 @@ public class BoardService {
             boardEntity.setPost_content(boardDTO.getPost_content());
             boardRepository.save(boardEntity);
             return BoardDTO.toBoardDTO(boardEntity, boardEntity.getUserEntity().getUser_id());
+        } else {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Board post with id " + postId + " not found");
         }
-        return null;// 게시글이 없을 경우 null 반환
     }
 
     // 게시글 삭제
     public void deleteBoardPost(int postId) {
-        boardRepository.deleteById(postId);
+        Optional<BoardEntity> boardEntityOpt = boardRepository.findById(postId);
+        if (boardEntityOpt.isPresent()) {
+            boardRepository.deleteById(postId);
+        } else {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Board post with id " + postId + " not found");
+        }
     }
 }

@@ -4,21 +4,18 @@ import com.swengineer.sportsmatch.dto.CommentDTO;
 import com.swengineer.sportsmatch.entity.BoardEntity;
 import com.swengineer.sportsmatch.entity.CommentEntity;
 import com.swengineer.sportsmatch.entity.UserEntity;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 import com.swengineer.sportsmatch.repository.BoardRepository;
 import com.swengineer.sportsmatch.repository.CommentRepository;
 import com.swengineer.sportsmatch.repository.UserRepository;
-import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
-@RequiredArgsConstructor
 public class CommentService {
 
     @Autowired
@@ -30,38 +27,39 @@ public class CommentService {
     @Autowired
     private UserRepository userRepository;
 
-    // 댓글 생성
+    // 댓글 작성
     public CommentDTO createComment(CommentDTO commentDTO, int postId, int userId) {
         Optional<BoardEntity> boardEntityOptional = boardRepository.findById(postId);
         Optional<UserEntity> userEntityOptional = userRepository.findById(userId);
 
         if (boardEntityOptional.isPresent() && userEntityOptional.isPresent()) {
-            CommentEntity commentEntity = CommentEntity.toSaveEntity(
-                    commentDTO,
-                    boardEntityOptional.get(),
-                    userEntityOptional.get()
-            );
-
             // 댓글 저장
+            BoardEntity boardEntity = boardEntityOptional.get();
+            UserEntity userEntity = userEntityOptional.get();
+
+            CommentEntity commentEntity = CommentEntity.toSaveEntity(commentDTO, boardEntity, userEntity);
             commentRepository.save(commentEntity);
 
             // 게시글의 댓글 수 증가
-            BoardEntity boardEntity = boardEntityOptional.get();
             boardEntity.setPost_comment_count(boardEntity.getPost_comment_count() + 1);
             boardRepository.save(boardEntity);
 
             return CommentDTO.toCommentDTO(commentEntity, postId, userId);
         } else {
-            throw new IllegalArgumentException("게시글 또는 유저 정보를 찾을 수 없습니다.");
+            if (boardEntityOptional.isEmpty()) {
+                throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Board post with id " + postId + " not found");
+            } else {
+                throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User with id " + userId + " not found");
+            }
         }
     }
 
-    // 댓글 조회 (게시글 ID 기준)
+    // 댓글 목록 조회 (게시글 ID 기준)
     public List<CommentDTO> getCommentsByPost(int postId) {
         Optional<BoardEntity> boardEntityOptional = boardRepository.findById(postId);
-
         if (boardEntityOptional.isPresent()) {
-            List<CommentEntity> commentEntities = commentRepository.findByBoardEntity(boardEntityOptional.get());
+            BoardEntity boardEntity = boardEntityOptional.get();
+            List<CommentEntity> commentEntities = commentRepository.findByBoardEntity(boardEntity);
             return commentEntities.stream()
                     .map(comment -> CommentDTO.toCommentDTO(
                             comment,
@@ -70,7 +68,22 @@ public class CommentService {
                     ))
                     .toList();
         } else {
-            throw new IllegalArgumentException("해당 게시글을 찾을 수 없습니다.");
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Board post with id " + postId + " not found");
+        }
+    }
+
+    // 댓글 상세 조회 (댓글 ID 기준)
+    public CommentDTO getCommentById(int commentId) {
+        Optional<CommentEntity> commentEntityOptional = commentRepository.findById(commentId);
+        if (commentEntityOptional.isPresent()) {
+            CommentEntity commentEntity = commentEntityOptional.get();
+            return CommentDTO.toCommentDTO(
+                    commentEntity,
+                    commentEntity.getBoardEntity().getPost_id(),
+                    commentEntity.getUserEntity().getUser_id()
+            );
+        } else {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Comment with id " + commentId + " not found");
         }
     }
 
@@ -81,7 +94,6 @@ public class CommentService {
         if (commentEntityOptional.isPresent()) {
             CommentEntity commentEntity = commentEntityOptional.get();
             commentEntity.setComment_content(updatedContent);
-            commentEntity.setComment_updated_time(LocalDateTime.now());
             commentRepository.save(commentEntity);
 
             return CommentDTO.toCommentDTO(
@@ -90,27 +102,25 @@ public class CommentService {
                     commentEntity.getUserEntity().getUser_id()
             );
         } else {
-            throw new IllegalArgumentException("댓글을 찾을 수 없습니다.");
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Comment with id " + commentId + " not found");
         }
     }
 
     // 댓글 삭제
-    @Transactional
     public void deleteComment(int commentId) {
-        // 댓글 조회
-        CommentEntity commentEntity = commentRepository.findById(commentId)
-                .orElseThrow(() -> new IllegalArgumentException("댓글을 찾을 수 없습니다."));
+        Optional<CommentEntity> commentEntityOptional = commentRepository.findById(commentId);
 
-        // 댓글 삭제 여부 및 삭제 시간 설정
-        commentEntity.setComment_delete_yn(true);
-        commentEntity.setComment_deleted_time(LocalDateTime.now());
-        commentRepository.save(commentEntity);
+        if (commentEntityOptional.isPresent()) {
+            CommentEntity commentEntity = commentEntityOptional.get();
 
-        // Lazy 로딩 문제를 피하기 위해 BoardEntity 초기화
-        BoardEntity boardEntity = commentEntity.getBoardEntity();
-        if (boardEntity != null) {
+            // 게시글의 댓글 수 감소
+            BoardEntity boardEntity = commentEntity.getBoardEntity();
             boardEntity.setPost_comment_count(boardEntity.getPost_comment_count() - 1);
             boardRepository.save(boardEntity);
+
+            commentRepository.deleteById(commentId);
+        } else {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Comment with id " + commentId + " not found");
         }
     }
 }

@@ -3,12 +3,12 @@ package com.swengineer.sportsmatch.service;
 import com.swengineer.sportsmatch.dto.BoardDTO;
 import com.swengineer.sportsmatch.entity.BoardEntity;
 import com.swengineer.sportsmatch.entity.UserEntity;
-import com.swengineer.sportsmatch.exception.UserNotFoundException;
 import com.swengineer.sportsmatch.repository.BoardRepository;
 import com.swengineer.sportsmatch.repository.UserRepository;
-import com.swengineer.sportsmatch.exception.BoardNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.Optional;
@@ -30,7 +30,7 @@ public class BoardService {
             boardRepository.save(boardEntity);
             return BoardDTO.toBoardDTO(boardEntity, userId);
         } else {
-            throw new UserNotFoundException("User with id " + userId + " not found");
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User with id " + userId + " not found");
         }
     }
 
@@ -51,7 +51,7 @@ public class BoardService {
             boardRepository.save(boardEntity);
             return BoardDTO.toBoardDTO(boardEntity, boardEntity.getUserEntity().getUser_id());
         } else {
-            throw new BoardNotFoundException("Board post with id " + postId + " not found");
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Board post with id " + postId + " not found");
         }
     }
 
@@ -65,7 +65,7 @@ public class BoardService {
             boardRepository.save(boardEntity);
             return BoardDTO.toBoardDTO(boardEntity, boardEntity.getUserEntity().getUser_id());
         } else {
-            throw new BoardNotFoundException("Board post with id " + postId + " not found");
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Board post with id " + postId + " not found");
         }
     }
 
@@ -75,7 +75,7 @@ public class BoardService {
         if (boardEntityOpt.isPresent()) {
             boardRepository.deleteById(postId);
         } else {
-            throw new BoardNotFoundException("Board post with id " + postId + " not found");
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Board post with id " + postId + " not found");
         }
     }
 }

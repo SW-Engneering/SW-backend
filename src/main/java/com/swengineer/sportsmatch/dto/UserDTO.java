@@ -18,7 +18,7 @@ public class UserDTO {
     private String phone_number;
     private String nickname;
     private LocalDateTime registDate;
-    private byte ban_yn; // `tinyint`를 boolean으로 변환
+    private boolean ban_yn;
     private String location;
     private int age;
     private char sex; // 1자 문자로 표현
@@ -35,7 +35,7 @@ public class UserDTO {
         userDTO.setPhone_number(userEntity.getPhone_number());
         userDTO.setNickname(userEntity.getNickname());
         userDTO.setRegistDate(userEntity.getRegistDate());
-        userDTO.setBan_yn(userEntity.getBan_yn()); // `tinyint`를 boolean으로 처리
+        userDTO.setBan_yn(userEntity.isBan_yn());
         userDTO.setLocation(userEntity.getLocation());
         userDTO.setAge(userEntity.getAge());
         userDTO.setSex(userEntity.getSex());

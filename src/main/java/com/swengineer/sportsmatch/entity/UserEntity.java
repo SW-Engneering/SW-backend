@@ -38,7 +38,7 @@ public class UserEntity extends BaseEntity {
     private LocalDateTime registDate; // 가입일자
 
     @Column(nullable = false)
-    private byte ban_yn; // 차단 여부 (1 = 차단, 0 = 차단 아님)
+    private boolean ban_yn = false; // 차단 여부 (1 = 차단, 0 = 차단 아님)
 
     @Column(nullable = true, length = 255)
     private String location; // 위치
@@ -70,26 +70,7 @@ public class UserEntity extends BaseEntity {
         userEntity.setPhone_number(userDTO.getPhone_number());
         userEntity.setNickname(userDTO.getNickname());
         userEntity.setRegistDate(userDTO.getRegistDate());
-        userEntity.setBan_yn(userDTO.getBan_yn());
-        userEntity.setLocation(userDTO.getLocation());
-        userEntity.setAge(userDTO.getAge());
-        userEntity.setSex(userDTO.getSex());
-        userEntity.setPosition(userDTO.getPosition());
-        //userEntity.setProfile_image(userDTO.getProfile_image());
-        return userEntity;
-    }
-
-    // UserDTO로 업데이트하는 메서드
-    public static UserEntity toUpdateEntity(UserDTO userDTO) {
-        UserEntity userEntity = new UserEntity();
-        userEntity.setUser_id(userDTO.getUser_id());
-        userEntity.setTeam_id(userDTO.getTeam_id());
-        userEntity.setPasswd(userDTO.getPasswd());
-        userEntity.setUser_name(userDTO.getUser_name());
-        userEntity.setPhone_number(userDTO.getPhone_number());
-        userEntity.setNickname(userDTO.getNickname());
-        userEntity.setRegistDate(userDTO.getRegistDate());
-        userEntity.setBan_yn(userDTO.getBan_yn());
+        userEntity.setBan_yn(false);
         userEntity.setLocation(userDTO.getLocation());
         userEntity.setAge(userDTO.getAge());
         userEntity.setSex(userDTO.getSex());

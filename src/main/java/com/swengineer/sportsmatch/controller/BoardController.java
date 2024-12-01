@@ -66,12 +66,12 @@ public class BoardController {
             @ApiResponse(responseCode = "200", description = "팀원 구하기 게시글 수정 성공"),
             @ApiResponse(responseCode = "404", description = "게시글을 찾을 수 없음")
     })
-    public ResponseEntity<BoardDTO> updateMemberPost(@PathVariable int postId, @RequestBody BoardDTO boardDTO) {
+    public ResponseEntity<BoardDTO> updateMemberPost(@PathVariable int postId, @RequestBody BoardDTO boardDTO, @RequestParam int userId) {
         try {
-            BoardDTO updatedBoard = boardService.updateBoardPost(postId, boardDTO);
+            BoardDTO updatedBoard = boardService.updateBoardPost(postId, boardDTO, userId);
             return ResponseEntity.status(HttpStatus.OK).body(updatedBoard);
         } catch (Exception e) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "게시글을 찾을 수 없음", e);
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "게시글 삭제 중 오류 발생", e);
         }
     }
 
@@ -82,12 +82,12 @@ public class BoardController {
             @ApiResponse(responseCode = "204", description = "팀원 구하기 게시글 삭제 성공"),
             @ApiResponse(responseCode = "404", description = "게시글을 찾을 수 없음")
     })
-    public ResponseEntity<String> deleteMemberPost(@PathVariable int postId) {
+    public ResponseEntity<String> deleteMemberPost(@PathVariable int postId, @RequestParam int userId) {
         try {
-            boardService.deleteBoardPost(postId);
+            boardService.deleteBoardPost(postId, userId);
             return ResponseEntity.status(HttpStatus.NO_CONTENT).body("게시글이 성공적으로 삭제되었습니다.");
         } catch (Exception e) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "게시글을 찾을 수 없음", e);
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "게시글 삭제 중 오류 발생", e);
         }
     }
 
@@ -138,12 +138,12 @@ public class BoardController {
             @ApiResponse(responseCode = "200", description = "팀 구하기 게시글 수정 성공"),
             @ApiResponse(responseCode = "404", description = "게시글을 찾을 수 없음")
     })
-    public ResponseEntity<BoardDTO> updateTeamPost(@PathVariable int postId, @RequestBody BoardDTO boardDTO) {
+    public ResponseEntity<BoardDTO> updateTeamPost(@PathVariable int postId, @RequestBody BoardDTO boardDTO, @RequestParam int userId) {
         try {
-            BoardDTO updatedBoard = boardService.updateBoardPost(postId, boardDTO);
+            BoardDTO updatedBoard = boardService.updateBoardPost(postId, boardDTO, userId);
             return ResponseEntity.status(HttpStatus.OK).body(updatedBoard);
         } catch (Exception e) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "게시글을 찾을 수 없음", e);
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "게시글 삭제 중 오류 발생", e);
         }
     }
 
@@ -154,12 +154,12 @@ public class BoardController {
             @ApiResponse(responseCode = "204", description = "팀 구하기 게시글 삭제 성공"),
             @ApiResponse(responseCode = "404", description = "게시글을 찾을 수 없음")
     })
-    public ResponseEntity<String> deleteTeamPost(@PathVariable int postId) {
+    public ResponseEntity<String> deleteTeamPost(@PathVariable int postId, @RequestParam int userId) {
         try {
-            boardService.deleteBoardPost(postId);
+            boardService.deleteBoardPost(postId, userId);
             return ResponseEntity.status(HttpStatus.NO_CONTENT).body("게시글이 성공적으로 삭제되었습니다.");
         } catch (Exception e) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "게시글을 찾을 수 없음", e);
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "게시글 삭제 중 오류 발생", e);
         }
     }
 }

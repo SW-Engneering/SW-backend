@@ -62,14 +62,12 @@ public class CommentController {
             @ApiResponse(responseCode = "200", description = "댓글 수정 성공"),
             @ApiResponse(responseCode = "404", description = "댓글을 찾을 수 없음")
     })
-    public ResponseEntity<CommentDTO> updateComment(
-            @PathVariable int commentId,
-            @RequestBody String updatedContent) {
+    public ResponseEntity<CommentDTO> updateComment(@PathVariable int commentId, @RequestBody String updatedContent, @RequestParam int userId) {
         try {
-            CommentDTO updatedComment = commentService.updateComment(commentId, updatedContent);
+            CommentDTO updatedComment = commentService.updateComment(commentId, updatedContent, userId);
             return ResponseEntity.status(HttpStatus.OK).body(updatedComment);
-        } catch (Exception e) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "댓글을 찾을 수 없음", e);
+        } catch (ResponseStatusException e) {
+            throw new ResponseStatusException(e.getStatusCode(), e.getReason());
         }
     }
 
@@ -81,12 +79,12 @@ public class CommentController {
             @ApiResponse(responseCode = "204", description = "댓글 삭제 성공"),
             @ApiResponse(responseCode = "404", description = "댓글을 찾을 수 없음")
     })
-    public ResponseEntity<String> deleteComment(@PathVariable int commentId) {
+    public ResponseEntity<String> deleteComment(@PathVariable int commentId, @RequestParam int userId) {
         try {
-            commentService.deleteComment(commentId);
+            commentService.deleteComment(commentId, userId);
             return ResponseEntity.status(HttpStatus.NO_CONTENT).body("댓글이 성공적으로 삭제되었습니다.");
-        } catch (Exception e) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "댓글을 찾을 수 없음", e);
+        } catch (ResponseStatusException e) {
+            throw new ResponseStatusException(e.getStatusCode(), e.getReason());
         }
     }
 }

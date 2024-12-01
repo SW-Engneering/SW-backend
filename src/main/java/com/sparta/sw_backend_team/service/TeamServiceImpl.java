@@ -26,7 +26,7 @@ public class TeamServiceImpl implements TeamService {
     }
 
     @Override
-    public TeamDto getTeamById(String teamId) {
+    public TeamDto getTeamById(int teamId) {
         return teams.stream()
                 .filter(team -> team.getTeamId().equals(teamId))
                 .findFirst()
@@ -34,7 +34,7 @@ public class TeamServiceImpl implements TeamService {
     }
 
     @Override
-    public TeamDto updateTeam(String teamId, TeamDto teamDto) {
+    public TeamDto updateTeam(int teamId, TeamDto teamDto) {
         TeamDto existingTeam = getTeamById(teamId);
         existingTeam.setTeamName(teamDto.getTeamName());
         existingTeam.setTeamRegion(teamDto.getTeamRegion());
@@ -42,48 +42,54 @@ public class TeamServiceImpl implements TeamService {
     }
 
     @Override
-    public void deleteTeam(String teamId) {
+    public void deleteTeam(int teamId) {
         TeamDto team = getTeamById(teamId);
         teams.remove(team);
     }
 
     @Override
-    public void addTeamMember(String teamId, UserDto userDto) {
+    public void addTeamMember(int teamId, UserDto userDto) {
         TeamDto team = getTeamById(teamId);
         team.getMembers().add(userDto);
     }
 
     @Override
-    public void removeTeamMember(String teamId, Integer userId) {
+    public void removeTeamMember(int teamId, int userId) {
         TeamDto team = getTeamById(teamId);
-        team.getMembers().removeIf(member -> member.getUserId().equals(userId));
+        team.getMembers().removeIf(member -> member.getUserId() == (userId));
     }
 
     @Override
-    public void transferLeadership(String teamId, Integer newLeaderId) {
+    public void transferLeadership(int teamId, Integer newLeaderId) {
         TeamDto team = getTeamById(teamId);
         team.setLeaderId(newLeaderId);
     }
 
     @Override
-    public Object getMatchInfo(String teamId, Integer matchId) {
+    public Object getMatchInfo(int teamId, Integer matchId) {
         // Mock implementation for now
         return "Match info for team " + teamId + " and match " + matchId;
     }
 
     @Override
-    public void createNoticeOrPoll(String teamId, Object noticeOrPollDto) {
+    public void createNoticeOrPoll(int teamId, Object noticeOrPollDto) {
         // Mock implementation for now
     }
 
     @Override
-    public void leaveTeam(String teamId, Integer userId) {
+    public void leaveTeam(int teamId, int userId) {
         removeTeamMember(teamId, userId);
     }
 
     @Override
-    public void batchRemoveMembers(String teamId, List<Integer> userIds) {
+    public void batchRemoveMembers(int teamId, List<Integer> userIds) {
         TeamDto team = getTeamById(teamId);
-        userIds.forEach(userId -> team.getMembers().removeIf(member -> member.getUserId().equals(userId)));
+
+        // userId : integer -> int
+        userIds.forEach(userId -> {
+            int primitiveUserId = userId; // Unboxing (Integer -> int)
+            team.getMembers().removeIf(member -> member.getUserId() == primitiveUserId);
+        });
     }
+
 }

@@ -13,32 +13,32 @@ public interface TeamService {
     List<TeamDto> getAllTeams();
 
     // 특정 팀 조회
-    TeamDto getTeamById(String teamId);
+    TeamDto getTeamById(int teamId);
 
     // 팀 정보 수정
-    TeamDto updateTeam(String teamId, TeamDto teamDto);
+    TeamDto updateTeam(int teamId, TeamDto teamDto);
 
     // 팀 삭제
-    void deleteTeam(String teamId);
+    void deleteTeam(int teamId);
 
     // 팀원 추가
-    void addTeamMember(String teamId, UserDto userDto);
+    void addTeamMember(int teamId, UserDto userDto);
 
     // 팀원 제거
-    void removeTeamMember(String teamId, Integer userId);
+    void removeTeamMember(int teamId, int userId);
 
     // 팀장 권한 양도
-    void transferLeadership(String teamId, Integer newLeaderId);
+    void transferLeadership(int teamId, Integer newLeaderId);
 
     // 매칭 정보 조회
-    Object getMatchInfo(String teamId, Integer matchId);
+    Object getMatchInfo(int teamId, Integer matchId);
 
     // 공지사항 또는 투표 생성
-    void createNoticeOrPoll(String teamId, Object noticeOrPollDto);
+    void createNoticeOrPoll(int teamId, Object noticeOrPollDto);
 
     // 팀 나가기
-    void leaveTeam(String teamId, Integer userId);
+    void leaveTeam(int teamId, int userId);
 
     // 팀원 일괄 방출
-    void batchRemoveMembers(String teamId, List<Integer> userIds);
+    void batchRemoveMembers(int teamId, List<Integer> userIds);
 }

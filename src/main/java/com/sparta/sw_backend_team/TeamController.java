@@ -42,7 +42,7 @@ public class TeamController {
 
     // 3) 특정 팀 정보 조회
     @GetMapping("/{teamId}")
-    public ResponseEntity<TeamDto> getTeamById(@PathVariable String teamId) {
+    public ResponseEntity<TeamDto> getTeamById(@PathVariable int teamId) {
         try {
             TeamDto team = teamService.getTeamById(teamId);
             return ResponseEntity.ok(team);
@@ -54,7 +54,7 @@ public class TeamController {
     // 4) 팀 정보 수정
     @PutMapping("/{teamId}")
     public ResponseEntity<TeamDto> updateTeam(
-            @PathVariable String teamId,
+            @PathVariable int teamId,
             @RequestBody TeamDto teamDto) {
         try {
             TeamDto updatedTeam = teamService.updateTeam(teamId, teamDto);
@@ -68,7 +68,7 @@ public class TeamController {
 
     // 5) 팀 삭제
     @DeleteMapping("/{teamId}")
-    public ResponseEntity<Void> deleteTeam(@PathVariable String teamId) {
+    public ResponseEntity<Void> deleteTeam(@PathVariable int teamId) {
         try {
             teamService.deleteTeam(teamId);
             return ResponseEntity.noContent().build();
@@ -80,7 +80,7 @@ public class TeamController {
     // 6) 팀원 추가
     @PostMapping("/{teamId}/members")
     public ResponseEntity<Void> addTeamMember(
-            @PathVariable String teamId,
+            @PathVariable int teamId,
             @RequestBody UserDto userDto) {
         try {
             teamService.addTeamMember(teamId, userDto);
@@ -95,8 +95,8 @@ public class TeamController {
     // 7) 팀원 방출
     @DeleteMapping("/{teamId}/members")
     public ResponseEntity<Void> removeTeamMember(
-            @PathVariable String teamId,
-            @RequestParam Integer userId) {
+            @PathVariable int teamId,
+            @RequestParam int userId) {
         try {
             teamService.removeTeamMember(teamId, userId);
             return ResponseEntity.ok().build();
@@ -108,7 +108,7 @@ public class TeamController {
     // 8) 팀장 권한 양도
     @PutMapping("/{teamId}/leader")
     public ResponseEntity<Void> transferLeadership(
-            @PathVariable String teamId,
+            @PathVariable int teamId,
             @RequestBody UserDto newLeaderDto) {
         try {
             teamService.transferLeadership(teamId, newLeaderDto.getUserId());
@@ -123,7 +123,7 @@ public class TeamController {
     // 9) 매칭 정보 조회
     @GetMapping("/{teamId}/match/{matchId}")
     public ResponseEntity<Object> getMatchInfo(
-            @PathVariable String teamId,
+            @PathVariable int teamId,
             @PathVariable Integer matchId) {
         try {
             Object matchInfo = teamService.getMatchInfo(teamId, matchId);
@@ -136,7 +136,7 @@ public class TeamController {
     // 10) 팀 공지 및 투표 작성
     @PostMapping("/{teamId}/notices")
     public ResponseEntity<Void> createNoticeOrPoll(
-            @PathVariable String teamId,
+            @PathVariable int teamId,
             @RequestBody Object noticeOrPollDto) {
         try {
             teamService.createNoticeOrPoll(teamId, noticeOrPollDto);
@@ -151,8 +151,8 @@ public class TeamController {
     // 11) 팀 나가기
     @PostMapping("/{teamId}/leave")
     public ResponseEntity<Void> leaveTeam(
-            @PathVariable String teamId,
-            @RequestParam Integer userId) {
+            @PathVariable int teamId,
+            @RequestParam int userId) {
         try {
             teamService.leaveTeam(teamId, userId);
             return ResponseEntity.ok().build();
@@ -164,7 +164,7 @@ public class TeamController {
     // 12) 팀원 일괄 방출
     @PostMapping("/{teamId}/members/batchRemove")
     public ResponseEntity<Void> batchRemoveMembers(
-            @PathVariable String teamId,
+            @PathVariable int teamId,
             @RequestBody List<Integer> userIds) {
         try {
             teamService.batchRemoveMembers(teamId, userIds);

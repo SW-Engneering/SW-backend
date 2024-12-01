@@ -39,9 +39,6 @@ public class UserService {
         return UserDTO.toUserDTO(savedEntity);
     }
 
-
-
-
     // 로그인
     public UserDTO login(String nickname, String passwd) {
         // 닉네임으로 사용자 조회

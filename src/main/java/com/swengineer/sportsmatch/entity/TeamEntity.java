@@ -1,7 +1,10 @@
 package com.swengineer.sportsmatch.entity;
 
+import com.fasterxml.jackson.annotation.*;
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.util.ArrayList;
@@ -11,6 +14,8 @@ import java.util.List;
 @Entity
 @Getter
 @Setter
+@NoArgsConstructor
+@AllArgsConstructor
 @Table(name = "Team")
 public class TeamEntity {
 
@@ -26,7 +31,6 @@ public class TeamEntity {
     @JoinColumn(name = "team_leader_id", nullable = false) // 컬럼 이름 확인
     private UserEntity leader; // 팀 리더 (Foreign Key)
 
-
     @OneToOne(mappedBy = "homeTeam", cascade = CascadeType.ALL, orphanRemoval = true)
     private MatchEntity homeMatch; // 홈 팀으로 설정된 매치
 
@@ -38,5 +42,11 @@ public class TeamEntity {
         return teamMembers.stream()
                 .map(TeamMemberEntity::getUser)
                 .toList();
+    }
+
+    @JsonCreator
+    public TeamEntity(@JsonProperty("teamId") int teamId, @JsonProperty("teamName") String teamName) {
+        this.teamId = teamId;
+        this.teamName = teamName;
     }
 }

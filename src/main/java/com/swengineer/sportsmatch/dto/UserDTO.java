@@ -1,103 +1,46 @@
 package com.swengineer.sportsmatch.dto;
 
+import com.swengineer.sportsmatch.entity.UserEntity;
+import lombok.*;
+
+import java.time.LocalDateTime;
+
+@Getter
+@Setter
+@ToString
+@NoArgsConstructor // 기본생성자
+@AllArgsConstructor // 모든 필드를 매개변수로하는 생성자
 public class UserDTO {
-    private Integer userId;
-    private Integer teamId;
+    private int user_id;
+    private int team_id;
     private String passwd;
-    private String userName;
-    private String phoneNumber;
+    private String user_name;
+    private String phone_number;
     private String nickname;
+    private LocalDateTime registDate;
+    private byte ban_yn; // `tinyint`를 boolean으로 변환
     private String location;
-    private Integer age;
-    private Character sex;
+    private int age;
+    private char sex; // 1자 문자로 표현
     private String position;
-    private String profileImage;
+    //private String profile_image;
 
-    public Integer getUserId() {
-        return userId;
-    }
-
-    public void setUserId(Integer userId) {
-        this.userId = userId;
-    }
-
-    public Integer getTeamId() {
-        return teamId;
-    }
-
-    public void setTeamId(Integer teamId) {
-        this.teamId = teamId;
-    }
-
-    public String getPasswd() {
-        return passwd;
-    }
-
-    public void setPasswd(String passwd) {
-        this.passwd = passwd;
-    }
-
-    public String getUserName() {
-        return userName;
-    }
-
-    public void setUserName(String userName) {
-        this.userName = userName;
-    }
-
-    public String getPhoneNumber() {
-        return phoneNumber;
-    }
-
-    public void setPhoneNumber(String phoneNumber) {
-        this.phoneNumber = phoneNumber;
-    }
-
-    public String getNickname() {
-        return nickname;
-    }
-
-    public void setNickname(String nickname) {
-        this.nickname = nickname;
-    }
-
-    public String getLocation() {
-        return location;
-    }
-
-    public void setLocation(String location) {
-        this.location = location;
-    }
-
-    public Integer getAge() {
-        return age;
-    }
-
-    public void setAge(Integer age) {
-        this.age = age;
-    }
-
-    public Character getSex() {
-        return sex;
-    }
-
-    public void setSex(Character sex) {
-        this.sex = sex;
-    }
-
-    public String getPosition() {
-        return position;
-    }
-
-    public void setPosition(String position) {
-        this.position = position;
-    }
-
-    public String getProfileImage() {
-        return profileImage;
-    }
-
-    public void setProfileImage(String profileImage) {
-        this.profileImage = profileImage;
+    // 엔티티를 DTO로 변환하는 메서드
+    public static UserDTO toUserDTO(UserEntity userEntity) {
+        UserDTO userDTO = new UserDTO();
+        userDTO.setUser_id(userEntity.getUserId());
+        userDTO.setTeam_id(userEntity.getTeam_id());
+        userDTO.setPasswd(userEntity.getPasswd());
+        userDTO.setUser_name(userEntity.getUser_name());
+        userDTO.setPhone_number(userEntity.getPhone_number());
+        userDTO.setNickname(userEntity.getNickname());
+        userDTO.setRegistDate(userEntity.getRegistDate());
+        userDTO.setBan_yn(userEntity.getBan_yn()); // `tinyint`를 boolean으로 처리
+        userDTO.setLocation(userEntity.getLocation());
+        userDTO.setAge(userEntity.getAge());
+        userDTO.setSex(userEntity.getSex());
+        userDTO.setPosition(userEntity.getPosition());
+        //userDTO.setProfile_image(userEntity.getProfile_image());
+        return userDTO;
     }
 }

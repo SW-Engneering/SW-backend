@@ -2,12 +2,12 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>팀 매칭 목록</title>
+    <title>팀 매칭 게시판</title>
 </head>
 <body>
-<button onclick="mainReq()">메인 화면</button>
+<h1>팀 매칭 게시판</h1>
 <button onclick="createMatchReq()">매칭 생성하기</button>
-<table>
+<table border="1">
     <tr>
         <th>매칭 ID</th>
         <th>홈 팀</th>
@@ -15,6 +15,7 @@
         <th>날짜</th>
         <th>장소</th>
         <th>상태</th>
+        <th>작업</th>
     </tr>
     <tr th:each="match : ${matchList}">
         <td th:text="${match.matchId}"></td>
@@ -23,15 +24,18 @@
         <td th:text="${#temporals.format(match.matchDate, 'yyyy-MM-dd')}"></td>
         <td th:text="${match.location}"></td>
         <td th:text="${match.status}"></td>
+        <td>
+            <a th:href="@{/match/{id}(id=${match.matchId})}">상세 보기</a> |
+            <form th:action="@{/match/{id}/delete(id=${match.matchId})}" method="post" style="display: inline;">
+                <button type="submit">삭제</button>
+            </form>
+        </td>
     </tr>
 </table>
 </body>
 <script>
-    const mainReq = () => {
-        location.href = "/";
-    }
     const createMatchReq = () => {
-        location.href = "/matches/new";
+        location.href = "/match/new";
     }
 </script>
 </html>

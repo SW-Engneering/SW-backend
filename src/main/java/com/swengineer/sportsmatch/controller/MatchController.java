@@ -2,68 +2,68 @@ package com.swengineer.sportsmatch.controller;
 
 import com.swengineer.sportsmatch.dto.MatchDTO;
 import com.swengineer.sportsmatch.service.MatchService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import java.util.List;
 
-@Controller
-@RequestMapping("/matches")
+@RestController
+@RequestMapping("/teamMatch")
 public class MatchController {
 
     @Autowired
     private MatchService matchService;
 
-    // 매칭 목록 조회
-    @GetMapping
-    public String getAllMatches(Model model) {
-        List<MatchDTO> matchList = matchService.getAllMatches();
-        model.addAttribute("matchList", matchList);
-        return "match_list"; // templates/match_list.html
-    }
-
-    // 매칭 상세 조회
-    @GetMapping("/{matchId}")
-    public String getMatchDetail(@PathVariable Integer matchId, Model model) {
-        MatchDTO match = matchService.getMatchDTOById(matchId);
-        model.addAttribute("match_detail", match);
-        return "match_detail"; // templates/match_detail.html
-    }
-
-    // 매칭 생성 폼 표시
-    @GetMapping("/new")
-    public String showCreateMatchForm(Model model) {
-        model.addAttribute("matchDTO", new MatchDTO());
-        return "match_create"; // templates/match_create.html
-    }
-
-    // 매칭 생성
     @PostMapping
-    public String createMatch(@ModelAttribute MatchDTO matchDTO) {
-        matchService.createMatch(matchDTO);
-        return "redirect:/matches";
+    @Operation(summary = "매치 생성", description = "새 매치를 생성합니다. 매치 데이터와 팀 ID를 입력해야 합니다.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "매치 생성 성공",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = MatchDTO.class))),
+            @ApiResponse(responseCode = "400", description = "잘못된 요청", content = @Content),
+            @ApiResponse(responseCode = "404", description = "팀을 찾을 수 없음", content = @Content),
+            @ApiResponse(responseCode = "500", description = "서버 내부 오류", content = @Content)
+    })
+    public MatchDTO createMatch(
+            @Valid @RequestBody MatchDTO matchDTO,
+            @RequestParam @io.swagger.v3.oas.annotations.Parameter(description = "홈 팀 ID") int homeTeamId,
+            @RequestParam @io.swagger.v3.oas.annotations.Parameter(description = "원정 팀 ID") int awayTeamId) {
+        return matchService.createMatch(matchDTO, homeTeamId, awayTeamId);
     }
 
-    // 매칭 수정 폼 표시
-    @GetMapping("/{matchId}/edit")
-    public String showUpdateMatchForm(@PathVariable Integer matchId, Model model) {
-        MatchDTO match = matchService.getMatchDTOById(matchId);
-        model.addAttribute("match_update", match);
-        return "match_update"; // templates/match_update.html
+    @PutMapping("/{matchId}")
+    @Operation(summary = "매치 수정", description = "매치를 수정합니다.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "매치 수정 성공",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = MatchDTO.class))),
+            @ApiResponse(responseCode = "400", description = "잘못된 요청", content = @Content),
+            @ApiResponse(responseCode = "404", description = "매치를 찾을 수 없음", content = @Content),
+            @ApiResponse(responseCode = "500", description = "서버 내부 오류", content = @Content)
+    })
+    public MatchDTO updateMatch(
+            @PathVariable int matchId,
+            @RequestBody MatchDTO matchDTO) {
+        return matchService.updateMatch(matchId, matchDTO);
     }
 
-    // 매칭 수정
-    @PostMapping("/{matchId}/edit")
-    public String updateMatch(@PathVariable Integer matchId, @ModelAttribute MatchDTO matchDTO) {
-        matchService.updateMatch(matchId, matchDTO);
-        return "redirect:/matches/" + matchId;
+    @DeleteMapping("/{matchId}")
+    @Operation(summary = "매치 취소", description = "특정 매치를 취소합니다.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "204", description = "매치 취소 성공"),
+            @ApiResponse(responseCode = "404", description = "매치를 찾을 수 없음"),
+            @ApiResponse(responseCode = "500", description = "서버 내부 오류")
+    })
+    public ResponseEntity<Void> cancelMatch(@PathVariable int matchId) {
+        matchService.cancelMatch(matchId);
+        return ResponseEntity.noContent().build();
     }
 
-    // 매칭 삭제
-    @PostMapping("/{matchId}/delete")
-    public String deleteMatch(@PathVariable Integer matchId) {
-        matchService.deleteMatch(matchId);
-        return "redirect:/matches";
+    public ResponseEntity<Void> cancelExpiredMatches() {
+        matchService.cancelMatchIfDeadlineExceeded();
+        return ResponseEntity.ok().build();
     }
 }

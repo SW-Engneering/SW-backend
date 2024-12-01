@@ -17,19 +17,21 @@ public class UserEntity extends BaseEntity {
 
     @Id // Primary Key 지정
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int user_id; // 사용자 ID
+    @Column(name = "user_id") // 데이터베이스 컬럼 이름 명시
+    private int userId; // 사용자 ID
 
-    @Column(nullable = false)
-    private int team_id; // 팀 ID
+    @ManyToOne
+    @JoinColumn(name = "team_id") // 팀과의 관계 설정
+    private TeamEntity team;
 
     @Column(nullable = false, length = 50)
     private String passwd; // 비밀번호
 
     @Column(nullable = false, length = 50)
-    private String user_name; // 사용자 이름
+    private String userName; // 사용자 이름
 
     @Column(nullable = false, length = 15)
-    private String phone_number; // 전화번호
+    private String phoneNumber; // 전화번호
 
     @Column(nullable = false, length = 50)
     private String nickname; // 닉네임
@@ -38,9 +40,9 @@ public class UserEntity extends BaseEntity {
     private LocalDateTime registDate; // 가입일자
 
     @Column(nullable = false)
-    private boolean ban_yn = false; // 차단 여부 (1 = 차단, 0 = 차단 아님)
+    private boolean banYn = false; // 차단 여부 (1 = 차단, 0 = 차단 아님)
 
-    @Column(nullable = true, length = 255)
+    @Column(length = 255)
     private String location; // 위치
 
     @Column(nullable = false)
@@ -49,33 +51,33 @@ public class UserEntity extends BaseEntity {
     @Column(nullable = false, length = 1)
     private char sex; // 성별 (M: 남성, F: 여성)
 
-    @Column(nullable = true, length = 255)
+    @Column(length = 255)
     private String position; // 포지션
 
-    //@Column(nullable = true, length = 255)
-    //private String profile_image; // 프로필 이미지 경로
+    //@Column(length = 255)
+    //private String profileImage; // 프로필 이미지 경로
 
     @OneToMany(mappedBy = "userEntity", cascade = CascadeType.REMOVE, orphanRemoval = true, fetch = FetchType.LAZY)
-    private List<CommentEntity> user_postEntityList = new ArrayList<>();
+    private List<CommentEntity> postEntityList = new ArrayList<>();
 
     @OneToMany(mappedBy = "userEntity", cascade = CascadeType.REMOVE, orphanRemoval = true, fetch = FetchType.LAZY)
-    private List<CommentEntity> user_commentEntityList = new ArrayList<>();
+    private List<CommentEntity> commentEntityList = new ArrayList<>();
 
     // UserDTO로 변환하는 메서드
-    public static UserEntity toSaveEntity(UserDTO userDTO) {
+    public static UserEntity toSaveEntity(UserDTO userDTO, TeamEntity teamEntity) {
         UserEntity userEntity = new UserEntity();
-        userEntity.setTeam_id(userDTO.getTeam_id());
+        userEntity.setTeam(teamEntity);
         userEntity.setPasswd(userDTO.getPasswd());
-        userEntity.setUser_name(userDTO.getUser_name());
-        userEntity.setPhone_number(userDTO.getPhone_number());
+        userEntity.setUserName(userDTO.getUser_name());
+        userEntity.setPhoneNumber(userDTO.getPhone_number());
         userEntity.setNickname(userDTO.getNickname());
         userEntity.setRegistDate(userDTO.getRegistDate());
-        userEntity.setBan_yn(false);
+        userEntity.setBanYn(false);
         userEntity.setLocation(userDTO.getLocation());
         userEntity.setAge(userDTO.getAge());
         userEntity.setSex(userDTO.getSex());
         userEntity.setPosition(userDTO.getPosition());
-        //userEntity.setProfile_image(userDTO.getProfile_image());
+        //userEntity.setProfileImage(userDTO.getProfile_image());
         return userEntity;
     }
 }

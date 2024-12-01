@@ -64,7 +64,7 @@ public class CommentService {
                     .map(comment -> CommentDTO.toCommentDTO(
                             comment,
                             postId,
-                            comment.getUserEntity().getUser_id()
+                            comment.getUserEntity().getUserId()
                     ))
                     .toList();
         } else {
@@ -80,7 +80,7 @@ public class CommentService {
             return CommentDTO.toCommentDTO(
                     commentEntity,
                     commentEntity.getBoardEntity().getPost_id(),
-                    commentEntity.getUserEntity().getUser_id()
+                    commentEntity.getUserEntity().getUserId()
             );
         } else {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Comment with id " + commentId + " not found");
@@ -95,7 +95,7 @@ public class CommentService {
             CommentEntity commentEntity = commentEntityOptional.get();
 
             // 작성자 검증
-            if (commentEntity.getUserEntity().getUser_id() != userId) {
+            if (commentEntity.getUserEntity().getUserId() != userId) {
                 throw new ResponseStatusException(HttpStatus.FORBIDDEN, "댓글 수정 권한이 없습니다.");
             }
 
@@ -106,7 +106,7 @@ public class CommentService {
             return CommentDTO.toCommentDTO(
                     commentEntity,
                     commentEntity.getBoardEntity().getPost_id(),
-                    commentEntity.getUserEntity().getUser_id()
+                    commentEntity.getUserEntity().getUserId()
             );
         } else {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Comment with id " + commentId + " not found");
@@ -121,7 +121,7 @@ public class CommentService {
             CommentEntity commentEntity = commentEntityOptional.get();
 
             // 작성자 검증
-            if (commentEntity.getUserEntity().getUser_id() != userId) {
+            if (commentEntity.getUserEntity().getUserId() != userId) {
                 throw new ResponseStatusException(HttpStatus.FORBIDDEN, "댓글 삭제 권한이 없습니다.");
             }
 

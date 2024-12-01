@@ -1,7 +1,9 @@
 package com.swengineer.sportsmatch.service;
 
 import com.swengineer.sportsmatch.dto.UserDTO;
+import com.swengineer.sportsmatch.entity.TeamEntity;
 import com.swengineer.sportsmatch.entity.UserEntity;
+import com.swengineer.sportsmatch.repository.TeamRepository;
 import com.swengineer.sportsmatch.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -14,6 +16,9 @@ import java.util.Optional;
 public class UserService {
 
     @Autowired
+    private TeamRepository teamRepository; // TeamRepository 주입
+
+    @Autowired
     private UserRepository userRepository;
 
     // 회원가입
@@ -23,13 +28,19 @@ public class UserService {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "이미 사용 중인 닉네임입니다.");
         }
 
+        // 팀 ID가 없는 경우 null로 처리
+        TeamEntity teamEntity = null;
+
         // UserDTO -> UserEntity 변환 후 저장
-        UserEntity userEntity = UserEntity.toSaveEntity(userDTO);
+        UserEntity userEntity = UserEntity.toSaveEntity(userDTO, teamEntity);
         UserEntity savedEntity = userRepository.save(userEntity);
 
         // 저장된 UserEntity를 UserDTO로 변환 후 반환
         return UserDTO.toUserDTO(savedEntity);
     }
+
+
+
 
     // 로그인
     public UserDTO login(String nickname, String passwd) {

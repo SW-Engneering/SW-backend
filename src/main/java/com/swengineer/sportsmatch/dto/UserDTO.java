@@ -1,5 +1,6 @@
 package com.swengineer.sportsmatch.dto;
 
+import com.swengineer.sportsmatch.entity.TeamEntity;
 import com.swengineer.sportsmatch.entity.UserEntity;
 import lombok.*;
 
@@ -8,11 +9,11 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 @ToString
-@NoArgsConstructor // 기본생성자
-@AllArgsConstructor // 모든 필드를 매개변수로하는 생성자
+@NoArgsConstructor // 기본 생성자
+@AllArgsConstructor // 모든 필드를 매개변수로 하는 생성자
 public class UserDTO {
     private int user_id;
-    private int team_id;
+    private Integer team_id; // 팀 ID를 nullable로 설정 (팀 미소속 가능)
     private String passwd;
     private String user_name;
     private String phone_number;
@@ -28,14 +29,15 @@ public class UserDTO {
     // 엔티티를 DTO로 변환하는 메서드
     public static UserDTO toUserDTO(UserEntity userEntity) {
         UserDTO userDTO = new UserDTO();
-        userDTO.setUser_id(userEntity.getUser_id());
-        userDTO.setTeam_id(userEntity.getTeam_id());
+        userDTO.setUser_id(userEntity.getUserId());
+        // 팀 정보가 있는 경우 team_id 설정
+        userDTO.setTeam_id(userEntity.getTeam() != null ? userEntity.getTeam().getTeamId() : null);
         userDTO.setPasswd(userEntity.getPasswd());
-        userDTO.setUser_name(userEntity.getUser_name());
-        userDTO.setPhone_number(userEntity.getPhone_number());
+        userDTO.setUser_name(userEntity.getUserName());
+        userDTO.setPhone_number(userEntity.getPhoneNumber());
         userDTO.setNickname(userEntity.getNickname());
         userDTO.setRegistDate(userEntity.getRegistDate());
-        userDTO.setBan_yn(userEntity.isBan_yn());
+        userDTO.setBan_yn(userEntity.isBanYn());
         userDTO.setLocation(userEntity.getLocation());
         userDTO.setAge(userEntity.getAge());
         userDTO.setSex(userEntity.getSex());

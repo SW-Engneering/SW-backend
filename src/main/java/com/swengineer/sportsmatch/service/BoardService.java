@@ -38,7 +38,7 @@ public class BoardService {
     public List<BoardDTO> getBoardPosts(String postType) {
         List<BoardEntity> boardEntities = boardRepository.findByPost_type(postType);
         return boardEntities.stream()
-                .map(boardEntity -> BoardDTO.toBoardDTO(boardEntity, boardEntity.getUserEntity().getUser_id()))
+                .map(boardEntity -> BoardDTO.toBoardDTO(boardEntity, boardEntity.getUserEntity().getUserId()))
                 .toList();
     }
 
@@ -49,7 +49,7 @@ public class BoardService {
             BoardEntity boardEntity = boardEntityOptional.get();
             boardEntity.setPost_hits(boardEntity.getPost_hits() + 1);
             boardRepository.save(boardEntity);
-            return BoardDTO.toBoardDTO(boardEntity, boardEntity.getUserEntity().getUser_id());
+            return BoardDTO.toBoardDTO(boardEntity, boardEntity.getUserEntity().getUserId());
         } else {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Board post with id " + postId + " not found");
         }
@@ -62,7 +62,7 @@ public class BoardService {
             BoardEntity boardEntity = boardEntityOpt.get();
 
             // 작성자 확인
-            if (boardEntity.getUserEntity().getUser_id() != userId) {
+            if (boardEntity.getUserEntity().getUserId() != userId) {
                 throw new ResponseStatusException(HttpStatus.FORBIDDEN, "수정 권한이 없습니다.");
             }
 
@@ -71,7 +71,7 @@ public class BoardService {
             boardEntity.setPost_content(boardDTO.getPost_content());
             boardRepository.save(boardEntity);
 
-            return BoardDTO.toBoardDTO(boardEntity, boardEntity.getUserEntity().getUser_id());
+            return BoardDTO.toBoardDTO(boardEntity, boardEntity.getUserEntity().getUserId());
         } else {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Board post with id " + postId + " not found");
         }
@@ -85,7 +85,7 @@ public class BoardService {
             BoardEntity boardEntity = boardEntityOpt.get();
 
             // 작성자 확인
-            if (boardEntity.getUserEntity().getUser_id() != userId) {
+            if (boardEntity.getUserEntity().getUserId() != userId) {
                 throw new ResponseStatusException(HttpStatus.FORBIDDEN, "삭제 권한이 없습니다.");
             }
 

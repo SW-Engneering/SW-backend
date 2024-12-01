@@ -16,30 +16,28 @@
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 
 --
--- Table structure for table `team`
+-- Table structure for table team
 --
 
-DROP TABLE IF EXISTS `team`;
+DROP TABLE IF EXISTS team;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `team` (
-  `team_id` int NOT NULL AUTO_INCREMENT,
-  `team_name` varchar(100) NOT NULL,
-  `user_id` int NOT NULL,
-  `team_leader_id` int NOT NULL,
-  PRIMARY KEY (`team_id`),
-  KEY `user_id` (`user_id`),
-  CONSTRAINT `team_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `user` (`user_id`)
+CREATE TABLE team (
+  team_id int NOT NULL AUTO_INCREMENT,        -- 팀 ID
+  team_name varchar(100) NOT NULL,           -- 팀 이름
+  team_leader_id int NOT NULL,               -- 팀 리더 ID (외래 키)
+  PRIMARY KEY (team_id),                     -- 기본 키
+  CONSTRAINT team_leader_fk FOREIGN KEY (team_leader_id) REFERENCES user (user_id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Dumping data for table `team`
+-- Dumping data for table team
 --
 
-LOCK TABLES `team` WRITE;
-/*!40000 ALTER TABLE `team` DISABLE KEYS */;
-/*!40000 ALTER TABLE `team` ENABLE KEYS */;
+LOCK TABLES team WRITE;
+/*!40000 ALTER TABLE team DISABLE KEYS */;
+/*!40000 ALTER TABLE team ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 

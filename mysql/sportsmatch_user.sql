@@ -23,22 +23,23 @@ DROP TABLE IF EXISTS `user`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `user` (
-  `user_id` int NOT NULL AUTO_INCREMENT,
-  `team_id` int DEFAULT NULL,
-  `passwd` varchar(50) NOT NULL,
-  `user_name` varchar(50) NOT NULL,
-  `phone_number` varchar(15) NOT NULL,
-  `nickname` varchar(50) NOT NULL,
-  `regist_date` datetime DEFAULT CURRENT_TIMESTAMP,
-  `ban_yn` tinyint(1) DEFAULT '0',
-  `location` varchar(255) DEFAULT NULL,
-  `age` int DEFAULT NULL,
-  `sex` char(1) DEFAULT NULL,
-  `position` varchar(255) DEFAULT NULL,
-  `profile_image` varchar(255) DEFAULT NULL,
-  `post_created_time` datetime(6) DEFAULT NULL,
-  `post_updated_time` datetime(6) DEFAULT NULL,
-  PRIMARY KEY (`user_id`)
+  `user_id` int NOT NULL AUTO_INCREMENT,         -- 사용자 ID (Primary Key)
+  `team_id` int DEFAULT NULL,                    -- 팀 ID (Foreign Key)
+  `passwd` varchar(50) NOT NULL,                -- 비밀번호
+  `user_name` varchar(50) NOT NULL,             -- 사용자 이름
+  `phone_number` varchar(15) NOT NULL,          -- 전화번호
+  `nickname` varchar(50) NOT NULL,              -- 닉네임
+  `regist_date` datetime DEFAULT CURRENT_TIMESTAMP, -- 등록 날짜
+  `ban_yn` tinyint(1) DEFAULT '0',              -- 차단 여부
+  `location` varchar(255) DEFAULT NULL,         -- 위치
+  `age` int DEFAULT NULL,                       -- 나이
+  `sex` char(1) DEFAULT NULL,                   -- 성별
+  `position` varchar(255) DEFAULT NULL,         -- 포지션
+  `profile_image` varchar(255) DEFAULT NULL,    -- 프로필 이미지
+  `post_created_time` datetime(6) DEFAULT NULL, -- 게시글 생성 시간
+  `post_updated_time` datetime(6) DEFAULT NULL, -- 게시글 수정 시간
+  PRIMARY KEY (`user_id`),                      -- Primary Key
+  CONSTRAINT `fk_user_team` FOREIGN KEY (`team_id`) REFERENCES `team` (`team_id`) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 

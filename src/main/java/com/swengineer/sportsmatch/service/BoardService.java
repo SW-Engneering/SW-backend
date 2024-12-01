@@ -56,23 +56,40 @@ public class BoardService {
     }
 
     // 게시글 수정
-    public BoardDTO updateBoardPost(int postId, BoardDTO boardDTO) {
+    public BoardDTO updateBoardPost(int postId, BoardDTO boardDTO, int userId) {
         Optional<BoardEntity> boardEntityOpt = boardRepository.findById(postId);
         if (boardEntityOpt.isPresent()) {
             BoardEntity boardEntity = boardEntityOpt.get();
+
+            // 작성자 확인
+            if (boardEntity.getUserEntity().getUser_id() != userId) {
+                throw new ResponseStatusException(HttpStatus.FORBIDDEN, "수정 권한이 없습니다.");
+            }
+
+            // 게시글 수정
             boardEntity.setPost_title(boardDTO.getPost_title());
             boardEntity.setPost_content(boardDTO.getPost_content());
             boardRepository.save(boardEntity);
+
             return BoardDTO.toBoardDTO(boardEntity, boardEntity.getUserEntity().getUser_id());
         } else {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Board post with id " + postId + " not found");
         }
     }
 
+
     // 게시글 삭제
-    public void deleteBoardPost(int postId) {
+    public void deleteBoardPost(int postId, int userId) {
         Optional<BoardEntity> boardEntityOpt = boardRepository.findById(postId);
         if (boardEntityOpt.isPresent()) {
+            BoardEntity boardEntity = boardEntityOpt.get();
+
+            // 작성자 확인
+            if (boardEntity.getUserEntity().getUser_id() != userId) {
+                throw new ResponseStatusException(HttpStatus.FORBIDDEN, "삭제 권한이 없습니다.");
+            }
+
+            // 게시글 삭제
             boardRepository.deleteById(postId);
         } else {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Board post with id " + postId + " not found");

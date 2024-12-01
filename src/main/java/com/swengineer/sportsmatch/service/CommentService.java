@@ -88,11 +88,18 @@ public class CommentService {
     }
 
     // 댓글 수정
-    public CommentDTO updateComment(int commentId, String updatedContent) {
+    public CommentDTO updateComment(int commentId, String updatedContent, int userId) {
         Optional<CommentEntity> commentEntityOptional = commentRepository.findById(commentId);
 
         if (commentEntityOptional.isPresent()) {
             CommentEntity commentEntity = commentEntityOptional.get();
+
+            // 작성자 검증
+            if (commentEntity.getUserEntity().getUser_id() != userId) {
+                throw new ResponseStatusException(HttpStatus.FORBIDDEN, "댓글 수정 권한이 없습니다.");
+            }
+
+            // 댓글 내용 수정
             commentEntity.setComment_content(updatedContent);
             commentRepository.save(commentEntity);
 
@@ -107,20 +114,29 @@ public class CommentService {
     }
 
     // 댓글 삭제
-    public void deleteComment(int commentId) {
+    public void deleteComment(int commentId, int userId) {
         Optional<CommentEntity> commentEntityOptional = commentRepository.findById(commentId);
 
         if (commentEntityOptional.isPresent()) {
             CommentEntity commentEntity = commentEntityOptional.get();
 
+            // 작성자 검증
+            if (commentEntity.getUserEntity().getUser_id() != userId) {
+                throw new ResponseStatusException(HttpStatus.FORBIDDEN, "댓글 삭제 권한이 없습니다.");
+            }
+
             // 게시글의 댓글 수 감소
             BoardEntity boardEntity = commentEntity.getBoardEntity();
-            boardEntity.setPost_comment_count(boardEntity.getPost_comment_count() - 1);
-            boardRepository.save(boardEntity);
+            if (boardEntity.getPost_comment_count() > 0) {
+                boardEntity.setPost_comment_count(boardEntity.getPost_comment_count() - 1);
+                boardRepository.save(boardEntity);
+            }
 
+            // 댓글 삭제
             commentRepository.deleteById(commentId);
         } else {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Comment with id " + commentId + " not found");
         }
     }
+
 }

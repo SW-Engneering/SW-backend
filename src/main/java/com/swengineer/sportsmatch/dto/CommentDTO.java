@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.w3c.dom.Text;
 
 import java.time.LocalDateTime;
 
@@ -13,7 +14,6 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 public class CommentDTO {
-
     private int comment_id; // 댓글 ID
     private int post_id; // 게시글 ID
     private int user_id; // 사용자 ID

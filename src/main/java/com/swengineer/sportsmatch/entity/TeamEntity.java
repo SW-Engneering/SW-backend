@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
@@ -22,14 +23,15 @@ public class TeamEntity {
     private String teamName; // 팀 이름
 
     @ManyToOne
-    @JoinColumn(name = "user_id", nullable = false)
+    @JoinColumn(name = "team_leader_id", nullable = false) // 컬럼 이름 확인
     private UserEntity leader; // 팀 리더 (Foreign Key)
+
 
     @OneToOne(mappedBy = "homeTeam", cascade = CascadeType.ALL, orphanRemoval = true)
     private MatchEntity homeMatch; // 홈 팀으로 설정된 매치
 
     @OneToMany(mappedBy = "team", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<TeamMemberEntity> teamMembers; // 팀원 리스트
+    private List<TeamMemberEntity> teamMembers = new ArrayList<>();
 
     public Collection<UserEntity> getTeamMembers() {
         // TeamMemberEntity에서 UserEntity를 추출하여 반환

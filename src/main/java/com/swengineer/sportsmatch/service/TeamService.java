@@ -14,6 +14,7 @@ import com.swengineer.sportsmatch.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDate;
@@ -121,19 +122,33 @@ public class TeamService {
     }
 
     // 6. 팀원 추가
+    @Transactional
     public TeamMemberDTO addTeamMember(int teamId, int userId) {
+        // 팀 확인
         Optional<TeamEntity> teamEntityOpt = teamRepository.findById(teamId);
-        Optional<UserEntity> userEntityOpt = userRepository.findById(userId);
-
-        if (teamEntityOpt.isEmpty() || userEntityOpt.isEmpty()) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "팀 또는 사용자를 찾을 수 없습니다.");
+        if (teamEntityOpt.isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "팀을 찾을 수 없습니다.");
         }
 
+        // 사용자 확인
+        Optional<UserEntity> userEntityOpt = userRepository.findById(userId);
+        if (userEntityOpt.isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "사용자를 찾을 수 없습니다.");
+        }
+
+        TeamEntity teamEntity = teamEntityOpt.get();
+        UserEntity userEntity = userEntityOpt.get();
+
+        // 팀 멤버 추가
         TeamMemberEntity teamMemberEntity = new TeamMemberEntity();
-        teamMemberEntity.setTeam(teamEntityOpt.get());
-        teamMemberEntity.setUser(userEntityOpt.get());
+        teamMemberEntity.setTeam(teamEntity);
+        teamMemberEntity.setUser(userEntity);
         teamMemberEntity.setRole(TeamMemberEntity.Role.MEMBER);
         teamMemberRepository.save(teamMemberEntity);
+
+        // 사용자 엔티티의 team_id 업데이트
+        userEntity.setTeam(teamEntity);
+        userRepository.save(userEntity);
 
         return TeamMemberDTO.toTeamMemberDTO(teamMemberEntity);
     }
@@ -155,6 +170,7 @@ public class TeamService {
         teamMemberRepository.delete(teamMemberEntityOpt.get());
     }
     // 8) 팀장 권한 양도
+    @Transactional
     public void transferLeadership(int teamId, int currentLeaderId, int newLeaderId) {
         Optional<TeamEntity> teamEntityOpt = teamRepository.findById(teamId);
         if (teamEntityOpt.isEmpty()) {
@@ -166,14 +182,30 @@ public class TeamService {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "권한이 없습니다.");
         }
 
-        Optional<UserEntity> newLeader = userRepository.findById(newLeaderId);
-        if (newLeader.isEmpty()) {
+        Optional<UserEntity> newLeaderOpt = userRepository.findById(newLeaderId);
+        if (newLeaderOpt.isEmpty()) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "새 팀장을 찾을 수 없습니다.");
         }
 
-        teamEntity.setLeader(newLeader.get());
+        UserEntity newLeader = newLeaderOpt.get();
+
+        // 1. 기존 리더의 역할 변경
+        TeamMemberEntity currentLeader = teamMemberRepository.findByUser_UserId(currentLeaderId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "현재 팀원을 찾을 수 없습니다."));
+        currentLeader.setRole(TeamMemberEntity.Role.MEMBER);
+        teamMemberRepository.save(currentLeader);
+
+        // 2. 새 리더의 역할 변경
+        TeamMemberEntity newLeaderMember = teamMemberRepository.findByUser_UserId(newLeaderId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "새 팀원을 찾을 수 없습니다."));
+        newLeaderMember.setRole(TeamMemberEntity.Role.LEADER);
+        teamMemberRepository.save(newLeaderMember);
+
+        // 3. 팀 엔티티의 리더 업데이트
+        teamEntity.setLeader(newLeader);
         teamRepository.save(teamEntity);
     }
+
 
     // 9) 매칭 정보 조회
     public List<MatchDTO> getTeamMatches(int teamId) {
@@ -202,29 +234,28 @@ public class TeamService {
         if (teamEntity.getLeader().getUserId() != leaderId) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "권한이 없습니다.");
         }
-
-        // 공지사항 저장 로직
-        // 예: 데이터베이스의 별도 테이블에 저장
-        // AnnouncementEntity announcement = new AnnouncementEntity(teamEntity, content);
-        // announcementRepository.save(announcement);
     }
 
     // 11) 팀 나가기
+    @Transactional
     public void leaveTeam(int teamId, int userId) {
-        Optional<TeamEntity> teamEntityOpt = teamRepository.findById(teamId);
-        if (teamEntityOpt.isEmpty()) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "팀을 찾을 수 없습니다.");
-        }
+        // 팀 확인
+        TeamEntity teamEntity = teamRepository.findById(teamId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "팀을 찾을 수 없습니다."));
 
-        TeamEntity teamEntity = teamEntityOpt.get();
+        // 팀원 확인
+        TeamMemberEntity teamMemberEntity = teamMemberRepository.findByUser_UserIdAndTeam_TeamId(userId, teamId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "팀원을 찾을 수 없습니다."));
 
-        Optional<TeamMemberEntity> teamMemberOpt = teamMemberRepository.findById(userId);
-        if (teamMemberOpt.isEmpty() || !teamMemberOpt.get().getTeam().equals(teamEntity)) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "팀원을 찾을 수 없습니다.");
-        }
+        // 팀원 삭제
+        teamMemberRepository.delete(teamMemberEntity);
 
-        teamMemberRepository.delete(teamMemberOpt.get());
+        // 유저 엔티티의 team_id를 null로 초기화
+        UserEntity userEntity = teamMemberEntity.getUser();
+        userEntity.setTeam(null);
+        userRepository.save(userEntity);
     }
+
 }
 
 

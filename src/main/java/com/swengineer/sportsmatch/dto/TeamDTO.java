@@ -25,8 +25,9 @@ public class TeamDTO {
         teamDTO.setTeamName(teamEntity.getTeamName());
         teamDTO.setLeaderId(teamEntity.getLeader().getUserId());
         teamDTO.setMemberIds(teamEntity.getTeamMembers().stream()
-                .map(userEntity -> userEntity.getUserId())
+                .map(teamMemberEntity -> teamMemberEntity.getUser().getUserId())
                 .collect(Collectors.toList()));
         return teamDTO;
     }
+
 }

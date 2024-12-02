@@ -4,7 +4,6 @@ import com.swengineer.sportsmatch.dto.CommentDTO;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
-import org.apache.catalina.User;
 
 import java.time.LocalDateTime;
 
@@ -12,20 +11,20 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 @Table(name = "comment")
-public class CommentEntity {
+public class CommentEntity extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "comment_id") // 데이터베이스 컬럼 이름 명시
     private int comment_id; // 댓글 ID
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "post_id")
+    @JoinColumn(name = "post_id", nullable = false) // 게시물과의 관계
     private BoardEntity boardEntity;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id")
-    private UserEntity userEntity; // 사용자 ID
-
+    @JoinColumn(name = "user_id", nullable = false) // 사용자와의 관계
+    private UserEntity userEntity;
 
     @Column(nullable = false, columnDefinition = "TEXT")
     private String comment_content; // 댓글 내용
@@ -61,3 +60,4 @@ public class CommentEntity {
         return commentEntity;
     }
 }
+

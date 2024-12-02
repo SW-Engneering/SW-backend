@@ -17,13 +17,13 @@ public class TeamMemberEntity {
     @Column(name = "id")
     private int id; // 단일 기본 키
 
-    @ManyToOne
-    @JoinColumn(name = "user_id", nullable = false) // 외래 키 매핑
-    private UserEntity user;
-
-    @ManyToOne
-    @JoinColumn(name = "team_id", nullable = false) // 외래 키 매핑
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "team_id", nullable = false)
     private TeamEntity team;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false)
+    private UserEntity user;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)

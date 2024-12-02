@@ -20,8 +20,8 @@ public class UserEntity extends BaseEntity {
     @Column(name = "user_id") // 데이터베이스 컬럼 이름 명시
     private int userId; // 사용자 ID
 
-    @ManyToOne
-    @JoinColumn(name = "team_id") // 팀과의 관계 설정
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "team_id", nullable = true) // 팀과의 관계 설정
     private TeamEntity team;
 
     @Column(nullable = false, length = 50)
@@ -33,7 +33,7 @@ public class UserEntity extends BaseEntity {
     @Column(nullable = false, length = 15)
     private String phoneNumber; // 전화번호
 
-    @Column(nullable = false, length = 50)
+    @Column(nullable = false, length = 50, unique = true)
     private String nickname; // 닉네임
 
     @Column(nullable = false)
@@ -54,14 +54,14 @@ public class UserEntity extends BaseEntity {
     @Column(length = 255)
     private String position; // 포지션
 
-    //@Column(length = 255)
-    //private String profileImage; // 프로필 이미지 경로
-
-    @OneToMany(mappedBy = "userEntity", cascade = CascadeType.REMOVE, orphanRemoval = true, fetch = FetchType.LAZY)
-    private List<CommentEntity> postEntityList = new ArrayList<>();
-
+    // 댓글 리스트 (사용자가 작성한 댓글)
     @OneToMany(mappedBy = "userEntity", cascade = CascadeType.REMOVE, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<CommentEntity> commentEntityList = new ArrayList<>();
+
+
+    // 게시물 리스트 (사용자가 작성한 게시물)
+    @OneToMany(mappedBy = "userEntity", cascade = CascadeType.REMOVE, orphanRemoval = true, fetch = FetchType.LAZY)
+    private List<BoardEntity> postEntityList = new ArrayList<>();
 
     // UserDTO로 변환하는 메서드
     public static UserEntity toSaveEntity(UserDTO userDTO, TeamEntity teamEntity) {
@@ -77,7 +77,12 @@ public class UserEntity extends BaseEntity {
         userEntity.setAge(userDTO.getAge());
         userEntity.setSex(userDTO.getSex());
         userEntity.setPosition(userDTO.getPosition());
-        //userEntity.setProfileImage(userDTO.getProfile_image());
         return userEntity;
     }
+
+    // UserDTO로 변환하는 메서드 (team이 없는 경우)
+    public static UserEntity toSaveEntity(UserDTO userDTO) {
+        return toSaveEntity(userDTO, null);
+    }
 }
+

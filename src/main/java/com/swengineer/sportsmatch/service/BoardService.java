@@ -2,6 +2,7 @@ package com.swengineer.sportsmatch.service;
 
 import com.swengineer.sportsmatch.dto.BoardDTO;
 import com.swengineer.sportsmatch.entity.BoardEntity;
+import com.swengineer.sportsmatch.entity.TeamEntity;
 import com.swengineer.sportsmatch.entity.UserEntity;
 import com.swengineer.sportsmatch.repository.BoardRepository;
 import com.swengineer.sportsmatch.repository.UserRepository;
@@ -94,5 +95,16 @@ public class BoardService {
         } else {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Board post with id " + postId + " not found");
         }
+    }
+
+    public boolean isTeamLeader(int userId) {
+        Optional<UserEntity> userOpt = userRepository.findById(userId);
+
+        if (userOpt.isPresent()) {
+            UserEntity user = userOpt.get();
+            TeamEntity team = user.getTeam();
+            return team != null && team.getLeader().getUserId() == userId;
+        }
+        return false;
     }
 }

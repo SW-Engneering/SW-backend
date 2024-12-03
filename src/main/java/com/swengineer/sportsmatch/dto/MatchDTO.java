@@ -23,6 +23,28 @@ public class MatchDTO {
     private LocalDate matchDate; // 매칭 날짜
     private String location; // 매칭 장소/ 매칭 장소
 
+//    public static MatchDTO toMatchDTO(MatchEntity matchEntity) {
+//        if (matchEntity == null) {
+//            System.out.println("MatchEntity is null");
+//            return null;
+//        }
+//
+//        System.out.println("Converting MatchEntity to MatchDTO: " + matchEntity.getMatchId());
+//        System.out.println("HomeTeamId: " + matchEntity.getHomeTeam().getTeamId());
+//        System.out.println("AwayTeamId: " + matchEntity.getAwayTeam().getTeamId());
+//        System.out.println("MatchDate: " + matchEntity.getMatchDate());
+//        System.out.println("Location: " + matchEntity.getLocation());
+//
+//        return new MatchDTO(
+//                matchEntity.getMatchId(),
+//                matchEntity.getHomeTeam().getTeamId(),
+//                matchEntity.getAwayTeam().getTeamId(),
+//                matchEntity.getMatchDate(),
+//                matchEntity.getLocation()
+//        );
+//    }
+
+
     public static MatchDTO toMatchDTO(MatchEntity matchEntity) {
         MatchDTO matchDTO = new MatchDTO();
         matchDTO.setMatchId(matchEntity.getMatchId());

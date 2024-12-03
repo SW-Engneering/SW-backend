@@ -19,8 +19,13 @@
 #      ddl-auto: update
 
 server:
-  port: 8080
-  address: 0.0.0.0
+  port: 443
+  ssl:
+    enabled: true
+    key-store: classpath:keystore.p12
+    key-store-password: sumin1234
+    key-store-type: PKCS12
+
 
 springdoc:
   api-docs:
@@ -29,7 +34,7 @@ springdoc:
     path: /swagger-ui.index.html # Swagger UI에 접근할 경로
     operations-sorter: alpha # API 정렬 기준
     display-request-duration: true # 요청 소요 시간 표시
-    server-url: http://3.34.133.247:8080 # Swagger에서 기본 서버 URL 설정
+    server-url: https://3.34.133.247:443 # Swagger에서 기본 서버 URL 설정
 
 logging:
   level:

@@ -1,22 +1,52 @@
-server:
-  port: 8080
+#server:
+#  port: 8080
 
 #데이터베이스 연동 설정
-spring:
-  application:
-    name: sportsmatch
-  datasource:
-    driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:3306/sportsmatch?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
-        #jdbc:mysql://데이터베이스 주소:3306/데이터베이스 이름?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
-    username: root #sql 아이디
-    password: 1234 #sql 비밀번호
-  thymeleaf:
-    cache: false
+#spring:
+#  application:
+#    name: sportsmatch
+#  datasource:
+#    driver-class-name: com.mysql.cj.jdbc.Driver
+#    url: jdbc:mysql://localhost:3306/sportsmatch?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
+#        #jdbc:mysql://데이터베이스 주소:3306/데이터베이스 이름?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
+#   username: root #sql 아이디
+#    password: 1234 #sql 비밀번호
 
+#  jpa:
+#    open-in-view: false
+#    show-sql: true
+#    hibernate:
+#      ddl-auto: update
+
+server:
+  port: 8080
+  address: 0.0.0.0
+
+springdoc:
+  api-docs:
+    path: /v3/api-docs # OpenAPI 문서 경로
+  swagger-ui:
+    path: /swagger-ui.index.html # Swagger UI에 접근할 경로
+    operations-sorter: alpha # API 정렬 기준
+    display-request-duration: true # 요청 소요 시간 표시
+    server-url: http://3.34.133.247:8080 # Swagger에서 기본 서버 URL 설정
+
+logging:
+  level:
+    root: INFO
+    org.springframework: INFO
+    org.hibernate: INFO
+
+
+
+spring:
+  datasource:
+    url: jdbc:mysql://sportsmatch-db.cx20ai4y8b1s.ap-northeast-2.rds.amazonaws.com:3306/sportsmatch
+    username: root                      # 사용자 이름 입력
+    password: sumin1234
+    driver-class-name: com.mysql.cj.jdbc.Driver
 
   jpa:
-    open-in-view: false
-    show-sql: true
     hibernate:
-      ddl-auto: update
+      ddl-auto: update # 스키마 자동 업데이트
+    open-in-view: false # spring.jpa.open-in-view 설정 경고 비활성화

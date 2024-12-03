@@ -2,6 +2,7 @@ package com.swengineer.sportsmatch.service;
 
 import com.swengineer.sportsmatch.dto.BoardDTO;
 import com.swengineer.sportsmatch.entity.BoardEntity;
+import com.swengineer.sportsmatch.entity.TeamEntity;
 import com.swengineer.sportsmatch.entity.UserEntity;
 import com.swengineer.sportsmatch.repository.BoardRepository;
 import com.swengineer.sportsmatch.repository.UserRepository;
@@ -94,5 +95,30 @@ public class BoardService {
         } else {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Board post with id " + postId + " not found");
         }
+    }
+
+    public boolean isTeamLeader(int userId) {
+        Optional<UserEntity> userOpt = userRepository.findById(userId);
+
+        if (userOpt.isPresent()) {
+            UserEntity user = userOpt.get();
+            TeamEntity team = user.getTeam();
+            return team != null && team.getLeader().getUserId() == userId;
+        }
+        return false;
+    }
+
+    // 특정 유저가 작성한 게시글 조회
+    public List<BoardDTO> getBoardsByUser(int userId) {
+        Optional<UserEntity> userEntityOpt = userRepository.findById(userId);
+
+        if (userEntityOpt.isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "유저를 찾을 수 없습니다.");
+        }
+
+        List<BoardEntity> boardEntities = boardRepository.findByUserEntity_UserId(userId);
+        return boardEntities.stream()
+                .map(board -> BoardDTO.toBoardDTO(board, userId))
+                .toList();
     }
 }

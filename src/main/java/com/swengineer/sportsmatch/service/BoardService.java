@@ -107,4 +107,18 @@ public class BoardService {
         }
         return false;
     }
+
+    // 특정 유저가 작성한 게시글 조회
+    public List<BoardDTO> getBoardsByUser(int userId) {
+        Optional<UserEntity> userEntityOpt = userRepository.findById(userId);
+
+        if (userEntityOpt.isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "유저를 찾을 수 없습니다.");
+        }
+
+        List<BoardEntity> boardEntities = boardRepository.findByUserEntity_UserId(userId);
+        return boardEntities.stream()
+                .map(board -> BoardDTO.toBoardDTO(board, userId))
+                .toList();
+    }
 }

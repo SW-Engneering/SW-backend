@@ -235,4 +235,16 @@ public class BoardController {
         }
     }
 
+    // 특정 유저의 게시글 조회
+    @GetMapping("/board/{userId}")
+    @Operation(summary = "특정 유저의 게시글 조회")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "특정 유저의 게시글 조회 성공"),
+            @ApiResponse(responseCode = "404", description = "유저를 찾을 수 없음")
+    })
+    public ResponseEntity<List<BoardDTO>> getBoardsByUser(@PathVariable int userId) {
+        List<BoardDTO> boards = boardService.getBoardsByUser(userId);
+        return ResponseEntity.ok(boards);
+    }
+
 }

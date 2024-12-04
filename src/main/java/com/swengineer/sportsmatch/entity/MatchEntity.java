@@ -20,13 +20,13 @@ public class MatchEntity {
     @Column(name = "match_id")
     private int matchId;
 
-    @OneToOne
+    @OneToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "home_team_id", nullable = false)
-    private TeamEntity homeTeam;
+    private TeamEntity homeTeam; // 홈 팀 설정
 
-    @OneToOne
+    @OneToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "away_team_id", nullable = false)
-    private TeamEntity awayTeam;
+    private TeamEntity awayTeam; // 원정 팀 설정
 
     @Column(name = "match_date", nullable = true)
     private LocalDate matchDate;

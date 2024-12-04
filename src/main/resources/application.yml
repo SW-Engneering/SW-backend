@@ -47,7 +47,7 @@ logging:
 
 spring:
   datasource:
-    url: jdbc:mysql://sportsmatch-db.cx20ai4y8b1s.ap-northeast-2.rds.amazonaws.com:3306/sportsmatch
+    url: jdbc:mysql://sportsmatch-db2.cx20ai4y8b1s.ap-northeast-2.rds.amazonaws.com:3306/sportsmatch
     username: root                      # 사용자 이름 입력
     password: sumin1234
     driver-class-name: com.mysql.cj.jdbc.Driver

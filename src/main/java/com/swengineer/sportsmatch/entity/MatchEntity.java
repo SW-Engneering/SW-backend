@@ -20,11 +20,11 @@ public class MatchEntity {
     @Column(name = "match_id")
     private int matchId;
 
-    @ManyToOne
+    @OneToOne
     @JoinColumn(name = "home_team_id", nullable = false)
     private TeamEntity homeTeam;
 
-    @ManyToOne
+    @OneToOne
     @JoinColumn(name = "away_team_id", nullable = false)
     private TeamEntity awayTeam;
 

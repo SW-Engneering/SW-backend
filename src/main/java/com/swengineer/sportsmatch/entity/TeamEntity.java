@@ -31,7 +31,7 @@ public class TeamEntity {
     @Column(name = "team_region", nullable = false, length = 100)
     private String teamRegion; // 팀 이름
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "team_leader_id", nullable = false) // 팀 리더와의 관계 설정
     private UserEntity leader; // 팀 리더 (Foreign Key)
 
@@ -52,8 +52,13 @@ public class TeamEntity {
 
     // JSON 직렬화를 위한 생성자
     @JsonCreator
-    public TeamEntity(@JsonProperty("teamId") int teamId, @JsonProperty("teamName") String teamName) {
+    public TeamEntity(
+            @JsonProperty("teamId") int teamId,
+            @JsonProperty("teamName") String teamName,
+            @JsonProperty("teamRegion") String teamRegion) {
         this.teamId = teamId;
         this.teamName = teamName;
+        this.teamRegion = teamRegion;
     }
+
 }

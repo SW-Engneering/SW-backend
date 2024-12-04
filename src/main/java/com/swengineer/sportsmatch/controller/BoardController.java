@@ -60,36 +60,7 @@ public class BoardController {
         }
     }
 
-    @PutMapping("/member/{postId}")
-    @Operation(summary = "팀원 구하기 게시글 수정")
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "팀원 구하기 게시글 수정 성공"),
-            @ApiResponse(responseCode = "404", description = "게시글을 찾을 수 없음")
-    })
-    public ResponseEntity<BoardDTO> updateMemberPost(@PathVariable int postId, @RequestBody BoardDTO boardDTO, @RequestParam int userId) {
-        try {
-            BoardDTO updatedBoard = boardService.updateBoardPost(postId, boardDTO, userId);
-            return ResponseEntity.status(HttpStatus.OK).body(updatedBoard);
-        } catch (Exception e) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "게시글 삭제 중 오류 발생", e);
-        }
-    }
 
-    @DeleteMapping("/member/{postId}")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    @Operation(summary = "팀원 구하기 게시글 삭제")
-    @ApiResponses({
-            @ApiResponse(responseCode = "204", description = "팀원 구하기 게시글 삭제 성공"),
-            @ApiResponse(responseCode = "404", description = "게시글을 찾을 수 없음")
-    })
-    public ResponseEntity<String> deleteMemberPost(@PathVariable int postId, @RequestParam int userId) {
-        try {
-            boardService.deleteBoardPost(postId, userId);
-            return ResponseEntity.status(HttpStatus.NO_CONTENT).body("게시글이 성공적으로 삭제되었습니다.");
-        } catch (Exception e) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "게시글 삭제 중 오류 발생", e);
-        }
-    }
 
     // 팀 구하기 게시판
     @PostMapping("/team")
@@ -132,29 +103,14 @@ public class BoardController {
         }
     }
 
-    @PutMapping("/team/{postId}")
-    @Operation(summary = "팀 구하기 게시글 수정")
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "팀 구하기 게시글 수정 성공"),
-            @ApiResponse(responseCode = "404", description = "게시글을 찾을 수 없음")
-    })
-    public ResponseEntity<BoardDTO> updateTeamPost(@PathVariable int postId, @RequestBody BoardDTO boardDTO, @RequestParam int userId) {
-        try {
-            BoardDTO updatedBoard = boardService.updateBoardPost(postId, boardDTO, userId);
-            return ResponseEntity.status(HttpStatus.OK).body(updatedBoard);
-        } catch (Exception e) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "게시글 삭제 중 오류 발생", e);
-        }
-    }
-
-    @DeleteMapping("/team/{postId}")
+    @DeleteMapping("/post/{postId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    @Operation(summary = "팀 구하기 게시글 삭제")
+    @Operation(summary = "게시글 삭제")
     @ApiResponses({
             @ApiResponse(responseCode = "204", description = "팀 구하기 게시글 삭제 성공"),
             @ApiResponse(responseCode = "404", description = "게시글을 찾을 수 없음")
     })
-    public ResponseEntity<String> deleteTeamPost(@PathVariable int postId, @RequestParam int userId) {
+    public ResponseEntity<String> deletePost(@PathVariable int postId, @RequestParam int userId) {
         try {
             boardService.deleteBoardPost(postId, userId);
             return ResponseEntity.status(HttpStatus.NO_CONTENT).body("게시글이 성공적으로 삭제되었습니다.");
@@ -163,16 +119,36 @@ public class BoardController {
         }
     }
 
+    @PutMapping("/post/{postId}")
+    @Operation(summary = "게시글 수정")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "매치 구하기 게시글 수정 성공"),
+            @ApiResponse(responseCode = "404", description = "게시글을 찾을 수 없음")
+    })
+    public ResponseEntity<BoardDTO> updatePost(@PathVariable int postId, @RequestBody BoardDTO boardDTO, @RequestParam int userId) {
+        try {
+            BoardDTO updatedBoard = boardService.updateBoardPost(postId, boardDTO, userId);
+            return ResponseEntity.status(HttpStatus.OK).body(updatedBoard);
+        } catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "게시글 삭제 중 오류 발생", e);
+        }
+    }
+
     // 매칭 구하기 게시판
     @PostMapping("/match")
     @ResponseStatus(HttpStatus.CREATED)
-    @Operation(summary = "매칭 구하기 게시글 작성")
+    @Operation(summary = "매치 구하기 게시글 작성")
     @ApiResponses({
             @ApiResponse(responseCode = "201", description = "매칭 구하기 게시글 작성 성공"),
             @ApiResponse(responseCode = "404", description = "사용자를 찾을 수 없음")
     })
     public ResponseEntity<BoardDTO> createMatchPost(@RequestBody BoardDTO boardDTO, @RequestParam int userId) {
         try {
+            if ("match".equalsIgnoreCase(boardDTO.getPost_type())) {
+                if (!boardService.isTeamLeader(userId)) {
+                    throw new ResponseStatusException(HttpStatus.FORBIDDEN, "매칭 게시글에 글을 작성하려면 팀 리더여야 합니다.");
+                }
+            }
             BoardDTO createdBoard = boardService.createBoardPost(boardDTO, userId, "match");
             return ResponseEntity.status(HttpStatus.CREATED).body(createdBoard);
         } catch (Exception e) {
@@ -181,18 +157,18 @@ public class BoardController {
     }
 
     @GetMapping("/match")
-    @Operation(summary = "팀 구하기 게시글 목록 조회")
+    @Operation(summary = "매치 구하기 게시글 목록 조회")
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "팀 구하기 게시글 목록 조회 성공")
+            @ApiResponse(responseCode = "200", description = "매치 구하기 게시글 목록 조회 성공")
     })
     public List<BoardDTO> getMatchPosts() {
         return boardService.getBoardPosts("Match");
     }
 
     @GetMapping("/match/{postId}")
-    @Operation(summary = "매칭 구하기 게시글 상세 조회")
+    @Operation(summary = "매치 구하기 게시글 상세 조회")
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "매칭 구하기 게시글 상세 조회 성공"),
+            @ApiResponse(responseCode = "200", description = "매치 구하기 게시글 상세 조회 성공"),
             @ApiResponse(responseCode = "404", description = "게시글을 찾을 수 없음")
     })
     public ResponseEntity<BoardDTO> getMatchingPost(@PathVariable int postId) {
@@ -204,36 +180,7 @@ public class BoardController {
         }
     }
 
-    @PutMapping("/match/{postId}")
-    @Operation(summary = "매칭 구하기 게시글 수정")
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "매칭 구하기 게시글 수정 성공"),
-            @ApiResponse(responseCode = "404", description = "게시글을 찾을 수 없음")
-    })
-    public ResponseEntity<BoardDTO> updateMatchPost(@PathVariable int postId, @RequestBody BoardDTO boardDTO, @RequestParam int userId) {
-        try {
-            BoardDTO updatedBoard = boardService.updateBoardPost(postId, boardDTO, userId);
-            return ResponseEntity.status(HttpStatus.OK).body(updatedBoard);
-        } catch (Exception e) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "게시글 삭제 중 오류 발생", e);
-        }
-    }
 
-    @DeleteMapping("/match/{postId}")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    @Operation(summary = "매칭 구하기 게시글 삭제")
-    @ApiResponses({
-            @ApiResponse(responseCode = "204", description = "매칭 구하기 게시글 삭제 성공"),
-            @ApiResponse(responseCode = "404", description = "게시글을 찾을 수 없음")
-    })
-    public ResponseEntity<String> deleteMatchingPost(@PathVariable int postId, @RequestParam int userId) {
-        try {
-            boardService.deleteBoardPost(postId, userId);
-            return ResponseEntity.status(HttpStatus.NO_CONTENT).body("게시글이 성공적으로 삭제되었습니다.");
-        } catch (Exception e) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "게시글 삭제 중 오류 발생", e);
-        }
-    }
 
     // 특정 유저의 게시글 조회
     @GetMapping("/board/{userId}")
@@ -246,5 +193,4 @@ public class BoardController {
         List<BoardDTO> boards = boardService.getBoardsByUser(userId);
         return ResponseEntity.ok(boards);
     }
-
 }

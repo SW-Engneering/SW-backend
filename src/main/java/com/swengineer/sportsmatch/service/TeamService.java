@@ -49,6 +49,7 @@ public class TeamService {
         // 팀 생성 및 리더 설정
         TeamEntity teamEntity = new TeamEntity();
         teamEntity.setTeamName(teamDTO.getTeamName());
+        teamEntity.setTeamRegion(teamDTO.getTeamRegion());
         teamEntity.setLeader(leader);
 
         // 팀 저장

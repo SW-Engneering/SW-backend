@@ -20,7 +20,7 @@ public class CommentEntity{
     @Column(name = "comment_id") // 데이터베이스 컬럼 이름 명시
     private int comment_id; // 댓글 ID
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "post_id", nullable = false) // 게시물과의 관계
     private BoardEntity boardEntity;
 

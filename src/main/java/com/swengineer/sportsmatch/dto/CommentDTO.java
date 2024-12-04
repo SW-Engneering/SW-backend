@@ -32,10 +32,8 @@ public class CommentDTO {
         commentDTO.setPost_id(post_id);
         commentDTO.setUser_id(user_id);
         commentDTO.setComment_content(commentEntity.getComment_content());
-        commentDTO.setComment_delete_yn(commentEntity.isComment_delete_yn());
         commentDTO.setComment_insert_time(commentEntity.getComment_insert_time());
         commentDTO.setComment_updated_time(commentEntity.getComment_updated_time());
-        commentDTO.setComment_deleted_time(commentEntity.getComment_deleted_time());
         commentDTO.setComment_secret_yn(commentEntity.isComment_secret_yn());
         commentDTO.setComment_hidden_yn(commentEntity.isComment_hidden_yn());
         return commentDTO;

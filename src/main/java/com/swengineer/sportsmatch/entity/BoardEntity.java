@@ -4,6 +4,8 @@ import com.swengineer.sportsmatch.dto.BoardDTO;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -13,7 +15,7 @@ import java.util.List;
 @Getter
 @Setter
 @Table(name = "post")
-public class BoardEntity extends BaseEntity {
+public class BoardEntity{
     @Id //pk 컬럼 지정
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int post_id; // 게시글 id
@@ -52,6 +54,14 @@ public class BoardEntity extends BaseEntity {
     @Column(nullable = false)
     private int post_comment_count = 0; // 댓글 개수 (기본값 0)
 
+    @CreationTimestamp //생성 시간
+    @Column(updatable = false) //수정될때 변동 x
+    private LocalDateTime post_created_time; //작성일
+
+    @UpdateTimestamp // 수정 시간
+    @Column(insertable = false) //생성될때 변동 x
+    private LocalDateTime post_updated_time; // 수정일
+
     @OneToMany(mappedBy = "boardEntity", cascade = CascadeType.REMOVE, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<CommentEntity> board_commentEntityList = new ArrayList<>();
 
@@ -70,6 +80,7 @@ public class BoardEntity extends BaseEntity {
         boardEntity.setPost_report_count(0);
         boardEntity.setPost_comment_count(0);
         boardEntity.setUserEntity(userEntity);
+        boardEntity.setPost_created_time(LocalDateTime.now());
         return boardEntity;
     }
 }

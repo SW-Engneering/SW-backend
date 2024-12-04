@@ -1,15 +1,13 @@
 #server:
-#  port: 8080
+#  port: 8081
 
-#데이터베이스 연동 설정
 #spring:
 #  application:
 #    name: sportsmatch
 #  datasource:
 #    driver-class-name: com.mysql.cj.jdbc.Driver
 #    url: jdbc:mysql://localhost:3306/sportsmatch?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
-#        #jdbc:mysql://데이터베이스 주소:3306/데이터베이스 이름?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
-#   username: root #sql 아이디
+#    username: root #sql 아이디
 #    password: 1234 #sql 비밀번호
 
 #  jpa:
@@ -17,6 +15,10 @@
 #    show-sql: true
 #    hibernate:
 #      ddl-auto: update
+
+
+#배포용
+
 
 server:
   port: 443
@@ -41,7 +43,6 @@ logging:
     root: INFO
     org.springframework: INFO
     org.hibernate: INFO
-
 
 
 spring:

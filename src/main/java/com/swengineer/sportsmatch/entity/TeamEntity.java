@@ -28,6 +28,9 @@ public class TeamEntity {
     @Column(name = "team_name", nullable = false, length = 100)
     private String teamName; // 팀 이름
 
+    @Column(name = "team_region", nullable = false, length = 100)
+    private String teamRegion; // 팀 이름
+
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "team_leader_id", nullable = false) // 팀 리더와의 관계 설정
     private UserEntity leader; // 팀 리더 (Foreign Key)
@@ -35,9 +38,10 @@ public class TeamEntity {
     @OneToMany(mappedBy = "team", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     private List<TeamMemberEntity> teamMembers = new ArrayList<>();
 
-
     @OneToMany(mappedBy = "homeTeam", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<MatchEntity> homeMatches = new ArrayList<>(); // 홈 팀으로 설정된 매치 리스트
+
+
 
     // 팀 멤버를 UserEntity의 리스트로 반환
     public List<UserEntity> getUserEntities() {
@@ -48,8 +52,13 @@ public class TeamEntity {
 
     // JSON 직렬화를 위한 생성자
     @JsonCreator
-    public TeamEntity(@JsonProperty("teamId") int teamId, @JsonProperty("teamName") String teamName) {
+    public TeamEntity(
+            @JsonProperty("teamId") int teamId,
+            @JsonProperty("teamName") String teamName,
+            @JsonProperty("teamRegion") String teamRegion) {
         this.teamId = teamId;
         this.teamName = teamName;
+        this.teamRegion = teamRegion;
     }
+
 }

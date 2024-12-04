@@ -26,6 +26,7 @@ public class TeamController {
     @Operation(summary = "팀 생성", description = "새로운 팀을 생성합니다.")
     @ApiResponses({
             @ApiResponse(responseCode = "201", description = "팀 생성 성공"),
+            @ApiResponse(responseCode = "400", description = "해당 유저는 이미 팀에 가입되어 있음."),
             @ApiResponse(responseCode = "404", description = "리더를 찾을 수 없음")
     })
     public ResponseEntity<TeamDTO> createTeam(@RequestBody TeamDTO teamDTO, @RequestParam int leaderId) {

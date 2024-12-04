@@ -115,6 +115,7 @@ public class CommentService {
 
     // 댓글 삭제
     public void deleteComment(int commentId, int userId) {
+        // 댓글 조회
         Optional<CommentEntity> commentEntityOptional = commentRepository.findById(commentId);
 
         if (commentEntityOptional.isPresent()) {
@@ -125,8 +126,11 @@ public class CommentService {
                 throw new ResponseStatusException(HttpStatus.FORBIDDEN, "댓글 삭제 권한이 없습니다.");
             }
 
-            // 게시글의 댓글 수 감소
-            BoardEntity boardEntity = commentEntity.getBoardEntity();
+            // 연관된 게시글 조회 (BoardEntity를 새로 로드하여 Lazy Initialization 문제 해결)
+            BoardEntity boardEntity = boardRepository.findById(commentEntity.getBoardEntity().getPost_id())
+                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "게시글을 찾을 수 없습니다."));
+
+            // 게시글의 댓글 수 감소 (0 이하로 내려가지 않도록 제한)
             if (boardEntity.getPost_comment_count() > 0) {
                 boardEntity.setPost_comment_count(boardEntity.getPost_comment_count() - 1);
                 boardRepository.save(boardEntity);

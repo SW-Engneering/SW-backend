@@ -46,6 +46,12 @@ public class TeamService {
         }
         UserEntity leader = leaderOpt.get();
 
+        // 이미 팀에 가입된 유저인지 확인
+        if (leader.getTeam() != null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "해당 유저는 이미 팀에 가입되어 있습니다.");
+        }
+
+
         // 팀 생성 및 리더 설정
         TeamEntity teamEntity = new TeamEntity();
         teamEntity.setTeamName(teamDTO.getTeamName());

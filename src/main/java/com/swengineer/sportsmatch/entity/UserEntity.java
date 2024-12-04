@@ -13,7 +13,7 @@ import java.util.List;
 @Getter
 @Setter
 @Table(name = "user") // 데이터베이스 테이블 이름과 일치시킵니다.
-public class UserEntity extends BaseEntity {
+public class UserEntity {
 
     @Id // Primary Key 지정
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -54,6 +54,7 @@ public class UserEntity extends BaseEntity {
     @Column(length = 255)
     private String position; // 포지션
 
+
     // 댓글 리스트 (사용자가 작성한 댓글)
     @OneToMany(mappedBy = "userEntity", cascade = CascadeType.REMOVE, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<CommentEntity> commentEntityList = new ArrayList<>();
@@ -77,6 +78,7 @@ public class UserEntity extends BaseEntity {
         userEntity.setAge(userDTO.getAge());
         userEntity.setSex(userDTO.getSex());
         userEntity.setPosition(userDTO.getPosition());
+        userEntity.setRegistDate(LocalDateTime.now());
         return userEntity;
     }
 

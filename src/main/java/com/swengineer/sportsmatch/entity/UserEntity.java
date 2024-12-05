@@ -1,6 +1,7 @@
 package com.swengineer.sportsmatch.entity;
 
 import com.swengineer.sportsmatch.dto.UserDTO;
+import com.swengineer.sportsmatch.entity.*;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -21,7 +22,7 @@ public class UserEntity {
     private int userId; // 사용자 ID
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "team_id", nullable = true) // 팀과의 관계 설정
+    @JoinColumn(name = "team_id", insertable = false, updatable = false) // 외래 키 매핑
     private TeamEntity team;
 
     @Column(nullable = false, length = 50)
@@ -49,7 +50,7 @@ public class UserEntity {
     private int age; // 나이
 
     @Column(nullable = false, length = 1)
-    private char sex; // 성별 (M: 남성, F: 여성)
+    private char sex; // 성별
 
     @Column(length = 255)
     private String position; // 포지션
@@ -64,7 +65,15 @@ public class UserEntity {
     @OneToMany(mappedBy = "userEntity", cascade = CascadeType.REMOVE, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<BoardEntity> postEntityList = new ArrayList<>();
 
-    // UserDTO로 변환하는 메서드
+    // 즐겨찾기 리스트 (사용자가 생성한 즐겨찾기)
+    @OneToMany(mappedBy = "userEntity", cascade = CascadeType.REMOVE, orphanRemoval = true, fetch = FetchType.LAZY)
+    private List<BookmarkEntity> bookmarkEntityList = new ArrayList<>();
+
+    // 신고 리스트 (사용자가 생성한 신고)
+    @OneToMany(mappedBy = "userEntity", cascade = CascadeType.REMOVE, orphanRemoval = true, fetch = FetchType.LAZY)
+    private List<InquiryEntity> inquiryEntities = new ArrayList<>();
+
+    // UserEntity 생성 메서드 추가
     public static UserEntity toSaveEntity(UserDTO userDTO, TeamEntity teamEntity) {
         UserEntity userEntity = new UserEntity();
         userEntity.setTeam(teamEntity);

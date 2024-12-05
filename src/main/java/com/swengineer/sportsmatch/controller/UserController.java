@@ -77,4 +77,21 @@ public class UserController {
         Iterable<UserDTO> users = userService.getAllUsers();
         return ResponseEntity.status(HttpStatus.OK).body(users);
     }
+
+    // 6. 내 정보 수정
+    @PutMapping("/{userId}") // PUT 요청을 통해 특정 사용자 정보를 수정
+    @Operation(summary = "내 정보 수정", description = "사용자 정보를 수정합니다.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "정보 수정 성공"), // 성공 시 응답 코드
+            @ApiResponse(responseCode = "400", description = "잘못된 요청"), // 잘못된 요청 시 응답 코드
+            @ApiResponse(responseCode = "401", description = "비밀번호 불일치"), // 비밀번호 불일치 시 응답 코드
+            @ApiResponse(responseCode = "404", description = "유저를 찾을 수 없음"), // 유저를 찾을 수 없을 때 응답 코드
+            @ApiResponse(responseCode = "409", description = "이미 사용 중인 닉네임") // 닉네임 중복 시 응답 코드
+    })
+    public ResponseEntity<UserDTO> updateUser(
+            @PathVariable int userId, // URL 경로에서 사용자 ID를 가져옴
+            @RequestBody UserDTO userDTO) { // 요청 본문에서 수정할 사용자 정보를 받아옴
+        UserDTO updatedUser = userService.updateUser(userId, userDTO); // 서비스 계층에서 사용자 정보 수정
+        return ResponseEntity.ok(updatedUser); // 수정된 사용자 정보를 반환
+    }
 }

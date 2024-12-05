@@ -3,9 +3,7 @@ package com.swengineer.sportsmatch.service;
 import com.swengineer.sportsmatch.dto.UserDTO;
 import com.swengineer.sportsmatch.entity.TeamEntity;
 import com.swengineer.sportsmatch.entity.UserEntity;
-import com.swengineer.sportsmatch.repository.TeamMemberRepository;
-import com.swengineer.sportsmatch.repository.TeamRepository;
-import com.swengineer.sportsmatch.repository.UserRepository;
+import com.swengineer.sportsmatch.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -27,6 +25,13 @@ public class UserService {
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private BookmarkRepository bookmarkRepository;
+
+    @Autowired
+    private InquiryRepository inquiryRepository;
+
 
     // 회원가입
     public UserDTO register(UserDTO userDTO) {
@@ -81,6 +86,13 @@ public class UserService {
             teamMemberRepository.deleteByUser_UserId(userId);
         }
 
+        bookmarkRepository.findByUserEntity(user)
+                .forEach(bookmarkRepository::delete);
+
+        // 문의 삭제
+        inquiryRepository.findByUserEntity(user)
+                .forEach(inquiryRepository::delete);
+
         // 유저 삭제
         userRepository.deleteById(userId);
     }
@@ -95,6 +107,38 @@ public class UserService {
         return userRepository.findAll().stream()
                 .map(UserDTO::toUserDTO)
                 .collect(Collectors.toList());
+    }
+
+    // 사용자 정보 수정 로직 추가
+    public UserDTO updateUser(int userId, UserDTO userDTO) {
+        // 사용자 조회
+        UserEntity userEntity = userRepository.findById(userId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "사용자를 찾을 수 없습니다."));
+
+        // 비밀번호 확인 (필요 시)
+        if (!userEntity.getPasswd().equals(userDTO.getPasswd())) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "비밀번호가 일치하지 않습니다.");
+        }
+
+        // 닉네임 중복 확인
+        if (userRepository.findByNickname(userDTO.getNickname()).isPresent() &&
+                !userEntity.getNickname().equals(userDTO.getNickname())) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "이미 사용 중인 닉네임입니다.");
+        }
+
+        // 사용자 정보 업데이트
+        userEntity.setNickname(userDTO.getNickname());
+        userEntity.setPhoneNumber(userDTO.getPhone_number());
+        userEntity.setLocation(userDTO.getLocation());
+        userEntity.setPosition(userDTO.getPosition());
+        userEntity.setAge(userDTO.getAge());
+        userEntity.setSex(userDTO.getSex());
+
+        // 변경 사항 저장
+        UserEntity updatedEntity = userRepository.save(userEntity);
+
+        // UserEntity → UserDTO 변환 및 반환
+        return UserDTO.toUserDTO(updatedEntity);
     }
 
 }

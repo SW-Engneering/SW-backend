@@ -230,34 +230,6 @@ public class TeamService {
                 .toList();
     }
 
-//    public List<MatchDTO> getTeamMatches(int teamId) {
-//        Optional<TeamEntity> teamEntityOpt = teamRepository.findById(teamId);
-//        if (teamEntityOpt.isEmpty()) {
-//            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "팀을 찾을 수 없습니다.");
-//        }
-//
-//        TeamEntity teamEntity = teamEntityOpt.get();
-//        System.out.println("Fetched TeamEntity: " + teamEntity.getTeamId());
-//
-//        List<MatchEntity> matches = matchRepository.findByIsCancelledFalseAndDeadlineBefore(LocalDate.now());
-//        System.out.println("Fetched Matches: " + matches.size());
-//
-//        List<MatchDTO> result = matches.stream()
-//                .filter(match -> {
-//                    System.out.println("Checking Match: " + match.getMatchId());
-//                    System.out.println("HomeTeam: " + match.getHomeTeam());
-//                    System.out.println("AwayTeam: " + match.getAwayTeam());
-//                    return match.getHomeTeam().equals(teamEntity) || match.getAwayTeam().equals(teamEntity);
-//                })
-//                .map(MatchDTO::toMatchDTO)
-//                .toList();
-//
-//        System.out.println("Filtered Matches: " + result.size());
-//        return result;
-//    }
-
-
-
     // 10) 팀 공지 및 투표 작성
     public void createAnnouncement(int teamId, int leaderId, String content) {
         Optional<TeamEntity> teamEntityOpt = teamRepository.findById(teamId);

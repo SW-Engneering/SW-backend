@@ -140,18 +140,22 @@ public class BoardController {
     @Operation(summary = "매치 구하기 게시글 작성")
     @ApiResponses({
             @ApiResponse(responseCode = "201", description = "매칭 구하기 게시글 작성 성공"),
-            @ApiResponse(responseCode = "404", description = "사용자를 찾을 수 없음")
+            @ApiResponse(responseCode = "404", description = "사용자를 찾을 수 없음"),
+            @ApiResponse(responseCode = "403", description = "매칭 게시글에 글을 작성하려면 팀 리더여야 합니다.")
     })
     public ResponseEntity<BoardDTO> createMatchPost(@RequestBody BoardDTO boardDTO, @RequestParam int userId) {
         try {
-            if ("match".equalsIgnoreCase(boardDTO.getPost_type())) {
-                if (!boardService.isTeamLeader(userId)) {
-                    throw new ResponseStatusException(HttpStatus.FORBIDDEN, "매칭 게시글에 글을 작성하려면 팀 리더여야 합니다.");
-                }
+            if (!boardService.isTeamLeader(userId)) {
+                throw new ResponseStatusException(HttpStatus.FORBIDDEN, "매칭 게시글에 글을 작성하려면 팀 리더여야 합니다.");
             }
+
             BoardDTO createdBoard = boardService.createBoardPost(boardDTO, userId, "match");
             return ResponseEntity.status(HttpStatus.CREATED).body(createdBoard);
+        } catch (ResponseStatusException e) {
+            // ResponseStatusException을 그대로 전파
+            throw e;
         } catch (Exception e) {
+            // 기타 예외는 BAD_REQUEST로 래핑
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "매칭 구하기 게시글 작성 중 오류 발생", e);
         }
     }

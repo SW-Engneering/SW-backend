@@ -16,7 +16,6 @@ spring:
     hibernate:
       ddl-auto: update
 
-
 #배포용
 
 

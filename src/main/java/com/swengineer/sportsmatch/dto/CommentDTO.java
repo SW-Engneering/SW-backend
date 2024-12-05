@@ -21,7 +21,6 @@ public class CommentDTO {
     private boolean comment_delete_yn; // 삭제 여부
     private LocalDateTime comment_insert_time; // 작성 시간
     private LocalDateTime comment_updated_time; // 수정 시간
-    private LocalDateTime comment_deleted_time; // 삭제 시간
     private boolean comment_secret_yn; // 비밀 댓글 여부
     private boolean comment_hidden_yn; // 숨김 여부
 

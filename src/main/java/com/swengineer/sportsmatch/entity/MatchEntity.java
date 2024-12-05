@@ -23,6 +23,7 @@ public class MatchEntity {
     @JoinColumn(name = "home_team_id", nullable = false)
     private TeamEntity homeTeam;
 
+    @Builder.Default
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt = LocalDateTime.now();
 

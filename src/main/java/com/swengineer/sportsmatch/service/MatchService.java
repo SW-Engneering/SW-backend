@@ -25,11 +25,21 @@ public class MatchService {
 
     public MatchDTO createMatch(int homeTeamId, int awayTeamId, MatchDTO matchDTO) {
         TeamEntity homeTeam = teamRepository.findById(homeTeamId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Home team not found"));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "홈팀을 찾을 수 없습니다."));
 
         TeamEntity awayTeam = teamRepository.findById(awayTeamId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Away team not found"));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "어웨이팀을 찾을 수 없습니다."));
 
+        // 이미 매칭 중인 팀인지 확인
+        if (isTeamInMatch(homeTeam)) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "홈팀은 이미 매칭 중입니다.");
+        }
+
+        if (isTeamInMatch(awayTeam)) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "어웨이팀은 이미 매칭 중입니다.");
+        }
+
+        // 매칭 생성
         MatchEntity matchEntity = MatchEntity.builder()
                 .homeTeam(homeTeam)
                 .awayTeam(awayTeam)
@@ -41,6 +51,13 @@ public class MatchService {
         MatchEntity savedMatch = matchRepository.save(matchEntity);
         return MatchDTO.toMatchDTO(savedMatch);
     }
+
+    // 매칭 중인지 확인하는 메서드
+    private boolean isTeamInMatch(TeamEntity team) {
+        // 매칭이 있는지 확인하는 쿼리, homeTeam 또는 awayTeam으로 참여 중인 매칭이 있는지 확인
+        return matchRepository.existsByHomeTeamOrAwayTeam(team, team);
+    }
+
 
 
     public MatchDTO getMatchById(int matchId) {

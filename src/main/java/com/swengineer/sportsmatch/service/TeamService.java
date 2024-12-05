@@ -146,6 +146,12 @@ public class TeamService {
         TeamEntity teamEntity = teamEntityOpt.get();
         UserEntity userEntity = userEntityOpt.get();
 
+        // 이미 팀에 속한 사용자인지 확인
+        Optional<TeamMemberEntity> existingTeamMember = teamMemberRepository.findByUser_UserId(userId);
+        if (existingTeamMember.isPresent()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "이 사용자는 이미 팀에 속해 있습니다.");
+        }
+
         // 팀 멤버 추가
         TeamMemberEntity teamMemberEntity = new TeamMemberEntity();
         teamMemberEntity.setTeam(teamEntity);
@@ -162,6 +168,7 @@ public class TeamService {
 
     // 7. 팀원 방출
     public void removeTeamMember(int teamId, int userId, int leaderId) {
+        // 팀 조회
         Optional<TeamEntity> teamEntityOpt = teamRepository.findById(teamId);
         if (teamEntityOpt.isEmpty()) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "팀을 찾을 수 없습니다.");
@@ -169,12 +176,12 @@ public class TeamService {
 
         TeamEntity teamEntity = teamEntityOpt.get();
 
-        // 팀의 리더 확인
+        // 팀 리더 확인
         if (teamEntity.getLeader().getUserId() != leaderId) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "방출 권한이 없습니다.");
         }
 
-        // 해당 팀에 속한 팀 멤버인지 확인
+        // 해당 팀에 속한 팀 멤버 확인
         Optional<TeamMemberEntity> teamMemberEntityOpt = teamEntity.getTeamMembers().stream()
                 .filter(teamMember -> teamMember.getUser().getUserId() == userId)
                 .findFirst();
@@ -185,10 +192,16 @@ public class TeamService {
 
         TeamMemberEntity teamMemberEntity = teamMemberEntityOpt.get();
 
+        // 자기 자신을 방출할 수 없도록 처리
+        if (teamMemberEntity.getUser().getUserId() == leaderId) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "자기 자신을 방출할 수 없습니다.");
+        }
+
         // 팀에서 팀 멤버 제거
         teamEntity.getTeamMembers().remove(teamMemberEntity);
         teamMemberRepository.delete(teamMemberEntity);
     }
+
     // 8) 팀장 권한 양도
     @Transactional
     public void transferLeadership(int teamId, int currentLeaderId, int newLeaderId) {

@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/matches") // 고유한 기본 경로 추가
+@RequestMapping("/matches")
 public class MatchController {
 
     @Autowired
@@ -40,26 +40,18 @@ public class MatchController {
         return matchService.getAllMatches();
     }
 
-    @GetMapping("/{matchId}")
-    @Operation(summary = "매치 상세 조회")
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "매치 상세 조회 성공"),
-            @ApiResponse(responseCode = "404", description = "매치를 찾을 수 없음")
-    })
-    public ResponseEntity<MatchDTO> getMatchById(@PathVariable int matchId) {
-        MatchDTO matchDTO = matchService.getMatchById(matchId);
-        return ResponseEntity.ok(matchDTO);
-    }
-
-    @DeleteMapping("/{matchId}")
+    @DeleteMapping("/{matchId}/{userId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @Operation(summary = "매치 삭제")
     @ApiResponses({
             @ApiResponse(responseCode = "204", description = "매치 삭제 성공"),
-            @ApiResponse(responseCode = "404", description = "매치를 찾을 수 없음")
+            @ApiResponse(responseCode = "404", description = "매치를 찾을 수 없음"),
+            @ApiResponse(responseCode = "403", description = "팀장만 매치를 삭제할 수 있음")
     })
     public ResponseEntity<Void> deleteMatch(@PathVariable int matchId) {
+        // 매치 삭제 처리
         matchService.deleteMatch(matchId);
         return ResponseEntity.noContent().build();
     }
+
 }

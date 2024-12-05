@@ -1,0 +1,38 @@
+server:
+  port: 8080
+
+#데이터베이스 연동 설정
+spring:
+  application:
+    name: sportsmatch
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/sportsmatch?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
+        #jdbc:mysql://데이터베이스 주소:3306/데이터베이스 이름?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
+    username: root #sql 아이디
+    password: 1234 #sql 비밀번호
+  thymeleaf:
+    cache: false
+
+
+  jpa:
+    open-in-view: false
+    show-sql: true
+    hibernate:
+      ddl-auto: update
+
+  jwt:
+    secret-key: ${RMXJdjTr8t5LGeaBFFDMy1sP18DzqLU5:default-secret-key} # 환경 변수 없으면 기본값 사용
+    expiration-time: 3600000
+    token-prefix: Bearer
+    header-string: Authorization
+
+  jmx:
+    enabled: true # JMX 활성화
+    default-domain: com.sportsmatch
+
+  management:
+    endpoints:
+      jmx:
+        exposure:
+          include: "*" # 모든 엔드포인트 노출

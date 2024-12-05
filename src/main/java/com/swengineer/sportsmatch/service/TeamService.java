@@ -163,18 +163,31 @@ public class TeamService {
     // 7. 팀원 방출
     public void removeTeamMember(int teamId, int userId, int leaderId) {
         Optional<TeamEntity> teamEntityOpt = teamRepository.findById(teamId);
-        Optional<TeamMemberEntity> teamMemberEntityOpt = teamMemberRepository.findById(userId);
-
-        if (teamEntityOpt.isEmpty() || teamMemberEntityOpt.isEmpty()) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "팀 또는 팀원을 찾을 수 없습니다.");
+        if (teamEntityOpt.isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "팀을 찾을 수 없습니다.");
         }
 
         TeamEntity teamEntity = teamEntityOpt.get();
+
+        // 팀의 리더 확인
         if (teamEntity.getLeader().getUserId() != leaderId) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "방출 권한이 없습니다.");
         }
 
-        teamMemberRepository.delete(teamMemberEntityOpt.get());
+        // 해당 팀에 속한 팀 멤버인지 확인
+        Optional<TeamMemberEntity> teamMemberEntityOpt = teamEntity.getTeamMembers().stream()
+                .filter(teamMember -> teamMember.getUser().getUserId() == userId)
+                .findFirst();
+
+        if (teamMemberEntityOpt.isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "팀원을 찾을 수 없습니다.");
+        }
+
+        TeamMemberEntity teamMemberEntity = teamMemberEntityOpt.get();
+
+        // 팀에서 팀 멤버 제거
+        teamEntity.getTeamMembers().remove(teamMemberEntity);
+        teamMemberRepository.delete(teamMemberEntity);
     }
     // 8) 팀장 권한 양도
     @Transactional
@@ -214,50 +227,6 @@ public class TeamService {
     }
 
 
-//     9) 매칭 정보 조회
-    public List<MatchDTO> getTeamMatches(int teamId) {
-        Optional<TeamEntity> teamEntityOpt = teamRepository.findById(teamId);
-        if (teamEntityOpt.isEmpty()) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "팀을 찾을 수 없습니다.");
-        }
-
-        TeamEntity teamEntity = teamEntityOpt.get();
-        List<MatchEntity> matches = matchRepository.findByIsCancelledFalseAndDeadlineBefore(LocalDate.now());
-
-        return matches.stream()
-                .filter(match -> match.getHomeTeam().equals(teamEntity) || match.getAwayTeam().equals(teamEntity))
-                .map(MatchDTO::toMatchDTO)
-                .toList();
-    }
-
-//    public List<MatchDTO> getTeamMatches(int teamId) {
-//        Optional<TeamEntity> teamEntityOpt = teamRepository.findById(teamId);
-//        if (teamEntityOpt.isEmpty()) {
-//            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "팀을 찾을 수 없습니다.");
-//        }
-//
-//        TeamEntity teamEntity = teamEntityOpt.get();
-//        System.out.println("Fetched TeamEntity: " + teamEntity.getTeamId());
-//
-//        List<MatchEntity> matches = matchRepository.findByIsCancelledFalseAndDeadlineBefore(LocalDate.now());
-//        System.out.println("Fetched Matches: " + matches.size());
-//
-//        List<MatchDTO> result = matches.stream()
-//                .filter(match -> {
-//                    System.out.println("Checking Match: " + match.getMatchId());
-//                    System.out.println("HomeTeam: " + match.getHomeTeam());
-//                    System.out.println("AwayTeam: " + match.getAwayTeam());
-//                    return match.getHomeTeam().equals(teamEntity) || match.getAwayTeam().equals(teamEntity);
-//                })
-//                .map(MatchDTO::toMatchDTO)
-//                .toList();
-//
-//        System.out.println("Filtered Matches: " + result.size());
-//        return result;
-//    }
-
-
-
     // 10) 팀 공지 및 투표 작성
     public void createAnnouncement(int teamId, int leaderId, String content) {
         Optional<TeamEntity> teamEntityOpt = teamRepository.findById(teamId);
@@ -278,11 +247,14 @@ public class TeamService {
         TeamEntity teamEntity = teamRepository.findById(teamId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "팀을 찾을 수 없습니다."));
 
-        // 팀원 확인
-        TeamMemberEntity teamMemberEntity = teamMemberRepository.findByUser_UserIdAndTeam_TeamId(userId, teamId)
+        // 해당 팀에 속한 팀 멤버인지 확인
+        TeamMemberEntity teamMemberEntity = teamEntity.getTeamMembers().stream()
+                .filter(teamMember -> teamMember.getUser().getUserId() == userId)
+                .findFirst()
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "팀원을 찾을 수 없습니다."));
 
         // 팀원 삭제
+        teamEntity.getTeamMembers().remove(teamMemberEntity);
         teamMemberRepository.delete(teamMemberEntity);
 
         // 유저 엔티티의 team_id를 null로 초기화
@@ -290,6 +262,7 @@ public class TeamService {
         userEntity.setTeam(null);
         userRepository.save(userEntity);
     }
+
 
 }
 

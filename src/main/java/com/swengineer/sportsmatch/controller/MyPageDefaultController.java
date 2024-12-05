@@ -26,4 +26,3 @@ public class MyPageDefaultController {
         return ResponseEntity.ok(defaultDTO);
     }
 }
-

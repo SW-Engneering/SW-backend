@@ -1,70 +1,65 @@
 package com.swengineer.sportsmatch.controller;
 
 import com.swengineer.sportsmatch.dto.MatchDTO;
-
 import com.swengineer.sportsmatch.service.MatchService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
-@RequestMapping("/teamMatch")
+@RequestMapping("/api/matches") // 고유한 기본 경로 추가
 public class MatchController {
 
     @Autowired
     private MatchService matchService;
 
     @PostMapping
-    @Operation(summary = "매치 생성", description = "새 매치를 생성합니다. 매치 데이터와 팀 ID를 입력해야 합니다.")
+    @ResponseStatus(HttpStatus.CREATED)
+    @Operation(summary = "매치 생성")
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "매치 생성 성공",
-                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = MatchDTO.class))),
-            @ApiResponse(responseCode = "400", description = "잘못된 요청", content = @Content),
-            @ApiResponse(responseCode = "404", description = "팀을 찾을 수 없음", content = @Content),
-            @ApiResponse(responseCode = "500", description = "서버 내부 오류", content = @Content)
+            @ApiResponse(responseCode = "201", description = "매치 생성 성공"),
+            @ApiResponse(responseCode = "404", description = "팀을 찾을 수 없음")
     })
-    public MatchDTO createMatch(
-            @Valid @RequestBody MatchDTO matchDTO,
-            @RequestParam @io.swagger.v3.oas.annotations.Parameter(description = "홈 팀 ID") int homeTeamId,
-            @RequestParam @io.swagger.v3.oas.annotations.Parameter(description = "원정 팀 ID") int awayTeamId) {
-        return matchService.createMatch(matchDTO, homeTeamId, awayTeamId);
+    public ResponseEntity<MatchDTO> createMatch(@RequestParam int homeTeamId, @RequestParam int awayTeamId, @RequestBody MatchDTO matchDTO) {
+        MatchDTO createdMatch = matchService.createMatch(homeTeamId, awayTeamId, matchDTO);
+        return ResponseEntity.status(HttpStatus.CREATED).body(createdMatch);
     }
 
-    @PutMapping("/{matchId}")
-    @Operation(summary = "매치 수정", description = "매치를 수정합니다.")
+    @GetMapping
+    @Operation(summary = "모든 매치 조회")
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "매치 수정 성공",
-                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = MatchDTO.class))),
-            @ApiResponse(responseCode = "400", description = "잘못된 요청", content = @Content),
-            @ApiResponse(responseCode = "404", description = "매치를 찾을 수 없음", content = @Content),
-            @ApiResponse(responseCode = "500", description = "서버 내부 오류", content = @Content)
+            @ApiResponse(responseCode = "200", description = "매치 목록 조회 성공")
     })
-    public MatchDTO updateMatch(
-            @PathVariable int matchId,
-            @RequestBody MatchDTO matchDTO) {
-        return matchService.updateMatch(matchId, matchDTO);
+    public List<MatchDTO> getAllMatches() {
+        return matchService.getAllMatches();
+    }
+
+    @GetMapping("/{matchId}")
+    @Operation(summary = "매치 상세 조회")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "매치 상세 조회 성공"),
+            @ApiResponse(responseCode = "404", description = "매치를 찾을 수 없음")
+    })
+    public ResponseEntity<MatchDTO> getMatchById(@PathVariable int matchId) {
+        MatchDTO matchDTO = matchService.getMatchById(matchId);
+        return ResponseEntity.ok(matchDTO);
     }
 
     @DeleteMapping("/{matchId}")
-    @Operation(summary = "매치 취소", description = "특정 매치를 취소합니다.")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    @Operation(summary = "매치 삭제")
     @ApiResponses({
-            @ApiResponse(responseCode = "204", description = "매치 취소 성공"),
-            @ApiResponse(responseCode = "404", description = "매치를 찾을 수 없음"),
-            @ApiResponse(responseCode = "500", description = "서버 내부 오류")
+            @ApiResponse(responseCode = "204", description = "매치 삭제 성공"),
+            @ApiResponse(responseCode = "404", description = "매치를 찾을 수 없음")
     })
-    public ResponseEntity<Void> cancelMatch(@PathVariable int matchId) {
-        matchService.cancelMatch(matchId);
+    public ResponseEntity<Void> deleteMatch(@PathVariable int matchId) {
+        matchService.deleteMatch(matchId);
         return ResponseEntity.noContent().build();
-    }
-
-    public ResponseEntity<Void> cancelExpiredMatches() {
-        matchService.cancelMatchIfDeadlineExceeded();
-        return ResponseEntity.ok().build();
     }
 }

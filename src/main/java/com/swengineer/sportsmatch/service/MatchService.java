@@ -3,85 +3,62 @@ package com.swengineer.sportsmatch.service;
 import com.swengineer.sportsmatch.dto.MatchDTO;
 import com.swengineer.sportsmatch.entity.MatchEntity;
 import com.swengineer.sportsmatch.entity.TeamEntity;
-import com.swengineer.sportsmatch.entity.TeamMemberEntity;
 import com.swengineer.sportsmatch.repository.MatchRepository;
 import com.swengineer.sportsmatch.repository.TeamRepository;
-import jakarta.persistence.EntityNotFoundException;
-import jakarta.transaction.Transactional;
-import lombok.RequiredArgsConstructor;
-import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
-import java.time.LocalDate;
-import java.util.ArrayList;
+import java.time.LocalDateTime;
 import java.util.List;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 
 @Service
-@RequiredArgsConstructor
 public class MatchService {
 
-    private final MatchRepository matchRepository;
-    private final TeamRepository teamRepository;
+    @Autowired
+    private MatchRepository matchRepository;
 
-    public MatchDTO createMatch(MatchDTO matchDTO, int homeTeamId, int awayTeamId) {
+    @Autowired
+    private TeamRepository teamRepository;
+
+    public MatchDTO createMatch(int homeTeamId, int awayTeamId, MatchDTO matchDTO) {
         TeamEntity homeTeam = teamRepository.findById(homeTeamId)
-                .orElseThrow(() -> new EntityNotFoundException("Home team not found with ID: " + homeTeamId));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Home team not found"));
 
         TeamEntity awayTeam = teamRepository.findById(awayTeamId)
-                .orElseThrow(() -> new EntityNotFoundException("Away team not found with ID: " + awayTeamId));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Away team not found"));
 
-        if (homeTeam.getTeamMembers().size() < 11 || awayTeam.getTeamMembers().size() < 11) {
-            throw new IllegalArgumentException("Both teams must have at least 11 members.");
-        }
-
-        if (matchRepository.existsByHomeTeamOrAwayTeam(homeTeam, awayTeam)) {
-            throw new IllegalArgumentException("One of the teams is already assigned to another match.");
-        }
-
-        MatchEntity match = MatchEntity.builder()
+        MatchEntity matchEntity = MatchEntity.builder()
                 .homeTeam(homeTeam)
                 .awayTeam(awayTeam)
                 .matchDate(matchDTO.getMatchDate())
                 .location(matchDTO.getLocation())
-                .createdAt(LocalDate.now())
-                .deadline(LocalDate.now().plusDays(7)) // 7일 후 기한 설정
+                .createdAt(LocalDateTime.now())
                 .build();
 
-        MatchEntity savedMatch = matchRepository.save(match);
-
+        MatchEntity savedMatch = matchRepository.save(matchEntity);
         return MatchDTO.toMatchDTO(savedMatch);
     }
 
-    public MatchDTO updateMatch(int matchId, MatchDTO matchDTO) {
-        MatchEntity match = matchRepository.findById(matchId)
-                .orElseThrow(() -> new EntityNotFoundException("Match not found with ID: " + matchId));
 
-        if (matchDTO.getMatchDate() != null) {
-            match.setMatchDate(matchDTO.getMatchDate());
-        }
-        if (matchDTO.getLocation() != null) {
-            match.setLocation(matchDTO.getLocation());
-        }
-
-        MatchEntity updatedMatch = matchRepository.save(match);
-        return MatchDTO.toMatchDTO(updatedMatch);
+    public MatchDTO getMatchById(int matchId) {
+        MatchEntity matchEntity = matchRepository.findById(matchId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Match not found"));
+        return MatchDTO.toMatchDTO(matchEntity);
     }
 
-    @Transactional
-    public void cancelMatchIfDeadlineExceeded() {
-        List<MatchEntity> expiredMatches = matchRepository.findByDeadlineBefore(LocalDate.now());
-        for (MatchEntity match : expiredMatches) {
-            matchRepository.delete(match); // DB에서 삭제
+    public List<MatchDTO> getAllMatches() {
+        return matchRepository.findAll().stream()
+                .map(MatchDTO::toMatchDTO)
+                .collect(Collectors.toList());
+    }
+
+    public void deleteMatch(int matchId) {
+        if (!matchRepository.existsById(matchId)) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Match not found");
         }
-    }
-
-    @Scheduled(cron = "0 0 0 * * ?") // 매일 자정 실행
-    public void checkMatchDeadlines() {
-        cancelMatchIfDeadlineExceeded();
-    }
-
-    public void cancelMatch(int matchId) {
-        matchRepository.delete(matchRepository.getReferenceById(matchId));
+        matchRepository.deleteById(matchId);
     }
 }

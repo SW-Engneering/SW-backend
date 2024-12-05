@@ -1,55 +1,38 @@
 package com.swengineer.sportsmatch.entity;
 
-import jakarta.annotation.PostConstruct;
 import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Entity
 @Getter
 @Setter
-@Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 @Table(name = "teammatch")
 public class MatchEntity {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "match_id")
     private int matchId;
 
-    @OneToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "home_team_id", nullable = false)
-    private TeamEntity homeTeam; // 홈 팀 설정
-
-    @OneToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "away_team_id", nullable = false)
-    private TeamEntity awayTeam; // 원정 팀 설정
-
-    @Column(name = "match_date", nullable = true)
-    private LocalDate matchDate;
-
-    @Column(name = "location", nullable = true, length = 255)
-    private String location;
+    private TeamEntity homeTeam;
 
     @Column(name = "created_at", nullable = false, updatable = false)
-    private LocalDate createdAt;
+    private LocalDateTime createdAt = LocalDateTime.now();
 
-    @Column(name = "deadline", nullable = false)
-    private LocalDate deadline;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "away_team_id", nullable = false)
+    private TeamEntity awayTeam;
 
-    private boolean isCancelled;
+    @Column(name = "match_date", nullable = false)
+    private LocalDate matchDate;
 
-    @PostConstruct
-    public void init() {
-        this.isCancelled = false; // 초기화 값 설정
-    }
-
-    @PrePersist
-    protected void onCreate() {
-        this.createdAt = LocalDate.now();
-        this.deadline = LocalDate.now().plusDays(7); // 기본 기한 설정
-    }
+    @Column(name = "location", nullable = false)
+    private String location;
 }

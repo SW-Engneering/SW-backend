@@ -126,18 +126,6 @@ public class TeamController {
         return ResponseEntity.status(HttpStatus.OK).build();
     }
 
-    // 9) 매칭 정보 조회
-    @GetMapping("/{teamId}/matches")
-    @Operation(summary = "매칭 정보 조회", description = "특정 팀의 매칭 정보를 조회합니다.")
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "매칭 정보 조회 성공"),
-            @ApiResponse(responseCode = "404", description = "팀을 찾을 수 없음")
-    })
-    public ResponseEntity<List<MatchDTO>> getTeamMatches(@PathVariable int teamId) {
-        List<MatchDTO> matches = teamService.getTeamMatches(teamId);
-        return ResponseEntity.status(HttpStatus.OK).body(matches);
-    }
-
     // 10) 팀 공지 및 투표 작성
     @PostMapping("/{teamId}/announcement")
     @Operation(summary = "팀 공지 작성", description = "팀 공지사항 또는 투표를 작성합니다.")

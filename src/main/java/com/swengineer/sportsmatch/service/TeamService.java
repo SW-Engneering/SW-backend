@@ -226,7 +226,6 @@ public class TeamService {
         teamRepository.save(teamEntity);
     }
 
-
     // 10) 팀 공지 및 투표 작성
     public void createAnnouncement(int teamId, int leaderId, String content) {
         Optional<TeamEntity> teamEntityOpt = teamRepository.findById(teamId);

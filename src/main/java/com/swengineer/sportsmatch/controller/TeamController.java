@@ -1,5 +1,6 @@
 package com.swengineer.sportsmatch.controller;
 
+import com.swengineer.sportsmatch.dto.AnnouncementDTO;
 import com.swengineer.sportsmatch.dto.MatchDTO;
 import com.swengineer.sportsmatch.dto.TeamDTO;
 import com.swengineer.sportsmatch.dto.TeamMemberDTO;
@@ -11,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 
@@ -137,10 +139,17 @@ public class TeamController {
     public ResponseEntity<Void> createAnnouncement(
             @PathVariable int teamId,
             @RequestParam int leaderId,
-            @RequestParam String content) {
-        teamService.createAnnouncement(teamId, leaderId, content);
-        return ResponseEntity.status(HttpStatus.CREATED).build();
+            @RequestBody AnnouncementDTO announcementDTO) {
+        try {
+            teamService.createAnnouncement(teamId, leaderId, announcementDTO);
+            return ResponseEntity.status(HttpStatus.CREATED).build();
+        } catch (ResponseStatusException e) {
+            throw e;  // 권한 없음이나 팀 찾을 수 없음 등의 예외를 그대로 전파
+        } catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "공지 작성 중 오류 발생", e);
+        }
     }
+
 
     // 11) 팀 나가기
     @DeleteMapping("/{teamId}/leave")
@@ -153,4 +162,29 @@ public class TeamController {
         teamService.leaveTeam(teamId, userId);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
+
+    // 공지사항 목록 조회
+    @GetMapping("/{teamId}/announcements")
+    @Operation(summary = "팀 공지 목록 조회", description = "팀에 속한 모든 공지사항을 조회합니다.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "공지 목록 조회 성공"),
+            @ApiResponse(responseCode = "404", description = "팀을 찾을 수 없음")
+    })
+    public ResponseEntity<List<AnnouncementDTO>> getAnnouncements(@PathVariable int teamId) {
+        List<AnnouncementDTO> announcements = teamService.getAnnouncementsByTeamId(teamId);
+        return ResponseEntity.ok(announcements);
+    }
+
+    // 공지사항 상세 조회
+    @GetMapping("/announcement/{announcementId}")
+    @Operation(summary = "공지 상세 조회", description = "특정 공지사항의 상세 정보를 조회합니다.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "공지 상세 조회 성공"),
+            @ApiResponse(responseCode = "404", description = "공지를 찾을 수 없음")
+    })
+    public ResponseEntity<AnnouncementDTO> getAnnouncement(@PathVariable int announcementId) {
+        AnnouncementDTO announcement = teamService.getAnnouncementById(announcementId);
+        return ResponseEntity.ok(announcement);
+    }
+
 }

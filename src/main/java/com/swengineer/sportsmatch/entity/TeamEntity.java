@@ -51,6 +51,9 @@ public class TeamEntity {
                 .collect(Collectors.toList());
     }
 
+    @OneToMany(mappedBy = "team", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    private List<AnnouncementEntity> announcements = new ArrayList<>(); // 공지사항 리스트
+
     // JSON 직렬화를 위한 생성자
     @JsonCreator
     public TeamEntity(

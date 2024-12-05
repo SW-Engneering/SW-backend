@@ -1,16 +1,11 @@
 package com.swengineer.sportsmatch.service;
 
+import com.swengineer.sportsmatch.dto.AnnouncementDTO;
 import com.swengineer.sportsmatch.dto.MatchDTO;
 import com.swengineer.sportsmatch.dto.TeamDTO;
 import com.swengineer.sportsmatch.dto.TeamMemberDTO;
-import com.swengineer.sportsmatch.entity.MatchEntity;
-import com.swengineer.sportsmatch.entity.TeamEntity;
-import com.swengineer.sportsmatch.entity.TeamMemberEntity;
-import com.swengineer.sportsmatch.entity.UserEntity;
-import com.swengineer.sportsmatch.repository.MatchRepository;
-import com.swengineer.sportsmatch.repository.TeamMemberRepository;
-import com.swengineer.sportsmatch.repository.TeamRepository;
-import com.swengineer.sportsmatch.repository.UserRepository;
+import com.swengineer.sportsmatch.entity.*;
+import com.swengineer.sportsmatch.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -22,6 +17,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+@Transactional
 @Service
 public class TeamService {
 
@@ -36,6 +32,9 @@ public class TeamService {
 
     @Autowired
     private MatchRepository matchRepository;
+
+    @Autowired
+    private AnnouncementRepository announcementRepository;
 
     // 1. 팀 생성
     public TeamDTO createTeam(TeamDTO teamDTO, int leaderId) {
@@ -240,17 +239,21 @@ public class TeamService {
     }
 
     // 10) 팀 공지 및 투표 작성
-    public void createAnnouncement(int teamId, int leaderId, String content) {
-        Optional<TeamEntity> teamEntityOpt = teamRepository.findById(teamId);
-        if (teamEntityOpt.isEmpty()) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "팀을 찾을 수 없습니다.");
-        }
+    public void createAnnouncement(int teamId, int leaderId, AnnouncementDTO announcementDTO) {
+        TeamEntity teamEntity = teamRepository.findById(teamId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "팀을 찾을 수 없습니다."));
 
-        TeamEntity teamEntity = teamEntityOpt.get();
         if (teamEntity.getLeader().getUserId() != leaderId) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "권한이 없습니다.");
         }
+
+        AnnouncementEntity announcementEntity = new AnnouncementEntity();
+        announcementEntity.setTeam(teamEntity);
+        announcementEntity.setTitle(announcementDTO.getTitle());
+        announcementEntity.setContent(announcementDTO.getContent());
+        announcementRepository.save(announcementEntity);
     }
+
 
     // 11) 팀 나가기
     @Transactional
@@ -275,6 +278,23 @@ public class TeamService {
         userRepository.save(userEntity);
     }
 
+    public List<AnnouncementDTO> getAnnouncementsByTeamId(int teamId) {
+        // 팀 존재 여부 확인
+        TeamEntity teamEntity = teamRepository.findById(teamId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "팀을 찾을 수 없습니다."));
+
+        // 공지사항 조회
+        List<AnnouncementEntity> announcements = announcementRepository.findByTeam_TeamId(teamId);
+        return announcements.stream()
+                .map(AnnouncementDTO::toAnnouncementDTO)
+                .toList();
+    }
+
+    public AnnouncementDTO getAnnouncementById(int announcementId) {
+        AnnouncementEntity announcementEntity = announcementRepository.findById(announcementId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "공지사항을 찾을 수 없습니다."));
+        return AnnouncementDTO.toAnnouncementDTO(announcementEntity);
+    }
 
 }
 

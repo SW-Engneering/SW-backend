@@ -1,6 +1,7 @@
 package com.swengineer.sportsmatch.service;
 
 import com.swengineer.sportsmatch.dto.UserDTO;
+import com.swengineer.sportsmatch.dto.UserUpdateDTO;
 import com.swengineer.sportsmatch.entity.TeamEntity;
 import com.swengineer.sportsmatch.entity.UserEntity;
 import com.swengineer.sportsmatch.repository.*;
@@ -110,29 +111,35 @@ public class UserService {
     }
 
     // 사용자 정보 수정 로직 추가
-    public UserDTO updateUser(int userId, UserDTO userDTO) {
+    public UserDTO updateUser(int userId, UserUpdateDTO userUpdateDTO) {
         // 사용자 조회
         UserEntity userEntity = userRepository.findById(userId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "사용자를 찾을 수 없습니다."));
 
-        // 비밀번호 확인 (필요 시)
-        if (!userEntity.getPasswd().equals(userDTO.getPasswd())) {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "비밀번호가 일치하지 않습니다.");
+        // 새 비밀번호 설정
+        if (userUpdateDTO.getPassword() != null) {
+            userEntity.setPasswd(userUpdateDTO.getPassword()); // 실제로는 해싱 필요
         }
 
-        // 닉네임 중복 확인
-        if (userRepository.findByNickname(userDTO.getNickname()).isPresent() &&
-                !userEntity.getNickname().equals(userDTO.getNickname())) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "이미 사용 중인 닉네임입니다.");
+        // 닉네임 (user_name) 업데이트
+        if (userUpdateDTO.getUser_name() != null) {
+            userEntity.setUserName(userUpdateDTO.getUser_name());
         }
 
-        // 사용자 정보 업데이트
-        userEntity.setNickname(userDTO.getNickname());
-        userEntity.setPhoneNumber(userDTO.getPhone_number());
-        userEntity.setLocation(userDTO.getLocation());
-        userEntity.setPosition(userDTO.getPosition());
-        userEntity.setAge(userDTO.getAge());
-        userEntity.setSex(userDTO.getSex());
+        // 휴대폰 번호 업데이트
+        if (userUpdateDTO.getPhone_number() != null) {
+            userEntity.setPhoneNumber(userUpdateDTO.getPhone_number());
+        }
+
+        // 위치 업데이트
+        if (userUpdateDTO.getLocation() != null) {
+            userEntity.setLocation(userUpdateDTO.getLocation());
+        }
+
+        // 포지션 업데이트
+        if (userUpdateDTO.getPosition() != null) {
+            userEntity.setPosition(userUpdateDTO.getPosition());
+        }
 
         // 변경 사항 저장
         UserEntity updatedEntity = userRepository.save(userEntity);
@@ -140,5 +147,8 @@ public class UserService {
         // UserEntity → UserDTO 변환 및 반환
         return UserDTO.toUserDTO(updatedEntity);
     }
+
+
+
 
 }

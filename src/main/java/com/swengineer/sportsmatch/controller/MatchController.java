@@ -58,14 +58,14 @@ public class MatchController {
         return ResponseEntity.noContent().build();
     }
 
-    @GetMapping("/{teamId}")
+    @GetMapping("/team/{teamId}")
     @Operation(summary = "특정 팀 매치 조회")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "특정 팀 매치 조회 성공"),
             @ApiResponse(responseCode = "404", description = "팀 ID를 찾을 수 없음"),
             @ApiResponse(responseCode = "500", description = "서버 오류")
     })
-    public ResponseEntity<List<MatchDTO>> getMatchesByTeamId(@Param("teamid") int teamId) {
+    public ResponseEntity<List<MatchDTO>> getMatchesByTeamId(@PathVariable("teamId") int teamId) {
         try {
             // 팀 ID로 매치 조회
             List<MatchDTO> matches = matchService.getMatchesByTeamId(teamId);

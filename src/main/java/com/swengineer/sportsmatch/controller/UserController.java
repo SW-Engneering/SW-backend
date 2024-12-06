@@ -1,6 +1,7 @@
 package com.swengineer.sportsmatch.controller;
 
 import com.swengineer.sportsmatch.dto.UserDTO;
+import com.swengineer.sportsmatch.dto.UserUpdateDTO;
 import com.swengineer.sportsmatch.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -90,7 +91,7 @@ public class UserController {
     })
     public ResponseEntity<UserDTO> updateUser(
             @PathVariable int userId, // URL 경로에서 사용자 ID를 가져옴
-            @RequestBody UserDTO userDTO) { // 요청 본문에서 수정할 사용자 정보를 받아옴
+            @RequestBody UserUpdateDTO userDTO) { // 요청 본문에서 수정할 사용자 정보를 받아옴
         UserDTO updatedUser = userService.updateUser(userId, userDTO); // 서비스 계층에서 사용자 정보 수정
         return ResponseEntity.ok(updatedUser); // 수정된 사용자 정보를 반환
     }

@@ -22,7 +22,7 @@ public class UserEntity {
     private int userId; // 사용자 ID
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "team_id", insertable = false, updatable = false) // 외래 키 매핑
+    @JoinColumn(name = "team_id", nullable = true)
     private TeamEntity team;
 
     @Column(nullable = false, length = 50)

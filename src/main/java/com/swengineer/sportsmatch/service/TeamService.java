@@ -125,8 +125,12 @@ public class TeamService {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "삭제 권한이 없습니다.");
         }
 
-        // 팀에 남아있는 팀원 확인
-        if (!teamEntity.getTeamMembers().isEmpty()) {
+        // 팀에 남아있는 팀원 확인 (팀장은 제외하고 확인)
+        long memberCount = teamEntity.getTeamMembers().stream()
+                .filter(member -> member.getUser().getUserId() != teamEntity.getLeader().getUserId())
+                .count();
+
+        if (memberCount > 0) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "팀에 남아있는 팀원이 있어 팀을 삭제할 수 없습니다.");
         }
 
@@ -148,8 +152,6 @@ public class TeamService {
         // 팀 삭제
         teamRepository.deleteById(teamId);
     }
-
-
 
     // 6. 팀원 추가
     @Transactional

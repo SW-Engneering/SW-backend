@@ -25,11 +25,28 @@ public class MatchService {
     private TeamRepository teamRepository;
 
     public MatchDTO createMatch(int homeTeamId, int awayTeamId, MatchDTO matchDTO) {
+        // 홈팀 조회
         TeamEntity homeTeam = teamRepository.findById(homeTeamId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "홈팀을 찾을 수 없습니다."));
 
+        // 어웨이팀 조회
         TeamEntity awayTeam = teamRepository.findById(awayTeamId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "어웨이팀을 찾을 수 없습니다."));
+
+        // 두 팀 모두 인원이 부족한 경우
+        if (homeTeam.getTeamMembers().size() < 11 && awayTeam.getTeamMembers().size() < 11) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "홈팀과 어웨이팀 모두 11명 이상의 팀원이 필요합니다.");
+        }
+
+        // 홈팀 인원 부족 시 예외 처리
+        if (homeTeam.getTeamMembers().size() < 11) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "홈팀은 11명 이상의 팀원이 필요합니다.");
+        }
+
+        // 어웨이팀 인원 부족 시 예외 처리
+        if (awayTeam.getTeamMembers().size() < 11) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "어웨이팀은 11명 이상의 팀원이 필요합니다.");
+        }
 
         // 이미 매칭 중인 팀인지 확인
         if (isTeamInMatch(homeTeam)) {
@@ -49,9 +66,11 @@ public class MatchService {
                 .createdAt(LocalDateTime.now())
                 .build();
 
+        // 매칭 저장
         MatchEntity savedMatch = matchRepository.save(matchEntity);
         return MatchDTO.toMatchDTO(savedMatch);
     }
+
 
     // 매칭 중인지 확인하는 메서드
     private boolean isTeamInMatch(TeamEntity team) {

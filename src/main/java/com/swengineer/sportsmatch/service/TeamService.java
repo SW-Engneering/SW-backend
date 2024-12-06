@@ -125,21 +125,30 @@ public class TeamService {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "삭제 권한이 없습니다.");
         }
 
+        // 팀에 남아있는 팀원 확인
+        if (!teamEntity.getTeamMembers().isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "팀에 남아있는 팀원이 있어 팀을 삭제할 수 없습니다.");
+        }
+
         // 관련 엔티티 삭제
         announcementRepository.findByTeam_TeamId(teamId).forEach(announcementRepository::delete);
 
         matchRepository.findByHomeTeam_TeamIdOrAwayTeam_TeamId(teamId, teamId)
                 .forEach(match -> matchRepository.deleteById(match.getMatchId()));
 
+        // 팀원 방출
         teamEntity.getTeamMembers().forEach(member -> {
-            member.getUser().setTeam(null);
+            member.getUser().setTeam(null);  // 유저의 팀을 null로 설정
             userRepository.save(member.getUser());
         });
+
+        // 팀 멤버 삭제
         teamMemberRepository.deleteAll(teamEntity.getTeamMembers());
 
         // 팀 삭제
         teamRepository.deleteById(teamId);
     }
+
 
 
     // 6. 팀원 추가
@@ -214,6 +223,11 @@ public class TeamService {
         // 팀에서 팀 멤버 제거
         teamEntity.getTeamMembers().remove(teamMemberEntity);
         teamMemberRepository.delete(teamMemberEntity);
+
+        // 방출된 유저의 team_id를 null로 설정
+        UserEntity userToRelease = teamMemberEntity.getUser();
+        userToRelease.setTeam(null);  // 유저의 팀을 null로 설정
+        userRepository.save(userToRelease);  // 유저 정보 저장
     }
 
     // 8) 팀장 권한 양도

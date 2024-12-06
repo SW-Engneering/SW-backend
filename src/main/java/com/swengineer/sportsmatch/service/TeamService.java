@@ -107,6 +107,7 @@ public class TeamService {
         }
 
         teamEntity.setTeamName(teamDTO.getTeamName());
+        teamEntity.setTeamRegion(teamDTO.getTeamRegion());
         teamRepository.save(teamEntity);
 
         return TeamDTO.toTeamDTO(teamEntity);

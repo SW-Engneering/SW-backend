@@ -67,8 +67,8 @@ public class TeamController {
             @ApiResponse(responseCode = "403", description = "수정 권한이 없음"),
             @ApiResponse(responseCode = "404", description = "팀을 찾을 수 없음")
     })
-    public ResponseEntity<TeamDTO> updateTeam(@PathVariable int teamId, @RequestBody TeamDTO teamDTO, @RequestParam int userId) {
-        TeamDTO updatedTeam = teamService.updateTeam(teamId, teamDTO, userId);
+    public ResponseEntity<TeamDTO> updateTeam(@PathVariable int teamId, @RequestBody TeamDTO teamDTO, @RequestParam int leaderId) {
+        TeamDTO updatedTeam = teamService.updateTeam(teamId, teamDTO, leaderId);
         return ResponseEntity.status(HttpStatus.OK).body(updatedTeam);
     }
 

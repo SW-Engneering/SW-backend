@@ -114,19 +114,33 @@ public class TeamService {
     }
 
     // 5. 팀 삭제
+    @Transactional
     public void deleteTeam(int teamId, int userId) {
-        Optional<TeamEntity> teamEntityOpt = teamRepository.findById(teamId);
-        if (teamEntityOpt.isEmpty()) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "팀을 찾을 수 없습니다.");
-        }
+        // 팀 조회
+        TeamEntity teamEntity = teamRepository.findById(teamId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "팀을 찾을 수 없습니다."));
 
-        TeamEntity teamEntity = teamEntityOpt.get();
+        // 팀 리더 권한 확인
         if (teamEntity.getLeader().getUserId() != userId) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "삭제 권한이 없습니다.");
         }
 
+        // 관련 엔티티 삭제
+        announcementRepository.findByTeam_TeamId(teamId).forEach(announcementRepository::delete);
+
+        matchRepository.findByHomeTeam_TeamIdOrAwayTeam_TeamId(teamId, teamId)
+                .forEach(match -> matchRepository.deleteById(match.getMatchId()));
+
+        teamEntity.getTeamMembers().forEach(member -> {
+            member.getUser().setTeam(null);
+            userRepository.save(member.getUser());
+        });
+        teamMemberRepository.deleteAll(teamEntity.getTeamMembers());
+
+        // 팀 삭제
         teamRepository.deleteById(teamId);
     }
+
 
     // 6. 팀원 추가
     @Transactional

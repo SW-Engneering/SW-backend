@@ -5,6 +5,7 @@ import com.swengineer.sportsmatch.entity.MatchEntity;
 import com.swengineer.sportsmatch.entity.TeamEntity;
 import com.swengineer.sportsmatch.repository.MatchRepository;
 import com.swengineer.sportsmatch.repository.TeamRepository;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -78,4 +79,32 @@ public class MatchService {
         }
         matchRepository.deleteById(matchId);
     }
+
+    public List<MatchDTO> getMatchesByTeamId(int teamId) {
+        List<MatchEntity> matches = matchRepository.findByHomeTeam_TeamIdOrAwayTeam_TeamId(teamId, teamId);
+
+        if (matches.isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No matches found for the given team ID");
+        }
+
+        return matches.stream()
+                .map(MatchDTO::toMatchDTO)
+                .collect(Collectors.toList());
+    }
+
+    public MatchDTO updateMatch(int matchId, MatchDTO matchDTO) {
+        MatchEntity match = matchRepository.findById(matchId)
+                .orElseThrow(() -> new EntityNotFoundException("Match not found with ID: " + matchId));
+
+        if (matchDTO.getMatchDate() != null) {
+            match.setMatchDate(matchDTO.getMatchDate());
+        }
+        if (matchDTO.getLocation() != null) {
+            match.setLocation(matchDTO.getLocation());
+        }
+        MatchEntity updatedMatch = matchRepository.save(match);
+        return MatchDTO.toMatchDTO(updatedMatch);
+    }
+
+
 }

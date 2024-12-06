@@ -17,6 +17,9 @@ public class MatchDTO {
     private String location;
 
     public static MatchDTO toMatchDTO(MatchEntity matchEntity) {
+        if (matchEntity == null) {
+            throw new IllegalArgumentException("MatchEntity cannot be null");
+        }
         MatchDTO matchDTO = new MatchDTO();
         matchDTO.setMatchId(matchEntity.getMatchId());
         matchDTO.setHomeTeamId(matchEntity.getHomeTeam().getTeamId());
@@ -25,4 +28,5 @@ public class MatchDTO {
         matchDTO.setLocation(matchEntity.getLocation());
         return matchDTO;
     }
+
 }
